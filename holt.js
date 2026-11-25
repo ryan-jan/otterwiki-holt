@@ -215,9 +215,11 @@
   highlight();
 })();
 
-// Search as you type from the navbar search box. Page and heading names come from the A–Z index and
-// match instantly. Page text is searched through Otter Wiki's own search a moment later. Picking a
-// result goes straight to it, and the last row opens the full search page as before.
+// Search as you type in a centred dialog, as in Notion. The navbar's search box becomes a button,
+// and Otter Wiki's own form moves into the dialog, so / still opens it and ⌘K or Ctrl+K does too.
+// Page and heading names come from the A–Z index and match instantly. Page text is searched
+// through Otter Wiki's own search a moment later. Picking a result goes straight to it, and the
+// last row opens the full search page as before.
 (() => {
   const input = document.querySelector('.navbar #search-query');
   const form = input?.closest('form');
@@ -231,12 +233,36 @@
   input.setAttribute('role', 'combobox');
   input.setAttribute('aria-expanded', 'false');
 
+  const mac = /Mac|iPhone|iPad/.test(navigator.platform);
+  const button = document.createElement('button');
+  button.type = 'button';
+  button.className = 'holt-search-button';
+  button.setAttribute('aria-haspopup', 'dialog');
+  button.innerHTML = '<i class="fas fa-search"></i><span>Search</span>';
+  const hint = document.createElement('kbd');
+  hint.textContent = mac ? '⌘K' : 'Ctrl K';
+  button.append(hint);
+  form.before(button);
+
+  const modal = document.createElement('div');
+  modal.className = 'holt-search-modal';
+  modal.hidden = true;
+  const dialog = document.createElement('div');
+  dialog.className = 'holt-search-dialog';
+  dialog.setAttribute('role', 'dialog');
+  dialog.setAttribute('aria-modal', 'true');
+  dialog.setAttribute('aria-label', 'Search');
+  form.prepend(Object.assign(document.createElement('i'), { className: 'fas fa-search' }));
+  form.append(Object.assign(document.createElement('kbd'), { textContent: 'Esc' }));
+
   const panel = document.createElement('div');
   panel.className = 'holt-search';
   panel.id = 'holt-search';
   panel.setAttribute('role', 'listbox');
   panel.hidden = true;
-  document.body.append(panel);
+  dialog.append(form, panel);
+  modal.append(dialog);
+  document.body.append(modal);
   input.setAttribute('aria-controls', panel.id);
 
   let index = null;
@@ -390,14 +416,6 @@
     return heading;
   };
 
-  const place = () => {
-    const box = input.getBoundingClientRect();
-    const narrow = window.innerWidth < 576;
-    panel.style.top = `${box.bottom + 6}px`;
-    panel.style.left = narrow ? '0.8rem' : `${Math.max(8, box.right - panel.offsetWidth)}px`;
-    panel.style.right = narrow ? '0.8rem' : 'auto';
-  };
-
   const render = () => {
     const query = input.value.trim();
     panel.replaceChildren();
@@ -443,7 +461,6 @@
     items.forEach((item, i) => item.setAttribute('aria-selected', String(i === active)));
     panel.hidden = false;
     input.setAttribute('aria-expanded', 'true');
-    place();
   };
 
   const close = () => {
@@ -479,7 +496,33 @@
     }, 250);
   });
 
+  let returnFocus = null;
+
+  const open = () => {
+    if (!modal.hidden) return;
+    returnFocus = document.activeElement;
+    modal.hidden = false;
+    input.focus();
+    input.select();
+  };
+
+  const dismiss = () => {
+    if (modal.hidden) return;
+    modal.hidden = true;
+    returnFocus?.focus?.();
+  };
+
   input.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      dismiss();
+      return;
+    }
+    // Arrow keys move through the results, so Tab has nothing else to reach.
+    if (event.key === 'Tab') {
+      event.preventDefault();
+      return;
+    }
     if (panel.hidden || !items.length) return;
     if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
       event.preventDefault();
@@ -487,14 +530,30 @@
     } else if (event.key === 'Enter') {
       event.preventDefault();
       items[active].click();
-    } else if (event.key === 'Escape') {
-      close();
-      input.blur();
     }
   });
 
-  // Keep focus in the box while a result is clicked, then close when focus leaves.
+  button.addEventListener('click', open);
+  // A click on the dimmed page closes it. Keep focus in the box while a result is clicked.
+  modal.addEventListener('click', (event) => {
+    if (!dialog.contains(event.target)) dismiss();
+  });
   panel.addEventListener('mousedown', (event) => event.preventDefault());
-  input.addEventListener('blur', () => setTimeout(close, 100));
-  window.addEventListener('resize', () => panel.hidden || place());
+
+  // Captured before Otter Wiki's own / shortcut, which would focus the box while it's hidden. The
+  // editor uses ⌘K for links, so neither shortcut fires while typing.
+  window.addEventListener(
+    'keydown',
+    (event) => {
+      if (event.target.closest?.('input, textarea, select, [contenteditable="true"], .CodeMirror')) return;
+      const command = (mac ? event.metaKey : event.ctrlKey) && !event.altKey && !event.shiftKey;
+      const slash = event.key === '/' && !event.metaKey && !event.ctrlKey && !event.altKey;
+      if ((command && event.key.toLowerCase() === 'k') || slash) {
+        event.preventDefault();
+        event.stopPropagation();
+        open();
+      }
+    },
+    true,
+  );
 })();

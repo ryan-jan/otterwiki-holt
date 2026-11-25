@@ -1666,24 +1666,145 @@ a:hover span.page-match {
     color: var(--holt-text-2);
 }
 
-/* Search as you type, from custom.js. A floating card like Notion's search. */
+/* Search, from holt.js. The navbar has a button that looks like the old box, and search as you type
+ * happens in a centred dialog like Notion's. */
 
-.holt-search {
-    position: fixed;
-    z-index: 1050;
-    width: 44rem;
-    max-width: calc(100vw - 1.6rem);
-    max-height: min(60vh, 52rem);
-    overflow-y: auto;
-    padding: 0.6rem;
-    background: var(--holt-bg);
+.holt-search-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.8rem;
+    width: 20rem;
+    height: 3rem;
+    margin-right: 0.5rem;
+    padding: 0 0.6rem 0 1rem;
+    border: 1px solid var(--holt-divider);
     border-radius: var(--holt-radius);
-    box-shadow: var(--holt-shadow-menu);
+    background: var(--lm-input-bg-color);
+    color: var(--holt-text-3);
     font-size: 1.4rem;
+    cursor: pointer;
 }
 
-.dark-mode .holt-search {
-    background: #252525;
+.dark-mode .holt-search-button {
+    background: var(--dm-input-bg-color);
+}
+
+.holt-search-button:hover {
+    background: var(--holt-hover);
+}
+
+.holt-search-button > span {
+    flex: 1;
+    text-align: left;
+}
+
+.holt-search-button kbd,
+.holt-search-dialog kbd {
+    padding: 0.1rem 0.6rem;
+    border: 1px solid var(--holt-divider);
+    border-radius: 0.4rem;
+    background: transparent;
+    color: var(--holt-text-3);
+    font-family: var(--holt-font);
+    font-size: 1.1rem;
+    box-shadow: none;
+}
+
+/* Phones keep just the icon, as the navbar has no room for the label. */
+@media (max-width: 575px) {
+    .holt-search-button {
+        width: 3.2rem;
+        padding: 0;
+        justify-content: center;
+        border-color: transparent;
+        background: transparent;
+    }
+
+    .holt-search-button > :is(span, kbd),
+    .holt-search-dialog kbd {
+        display: none;
+    }
+}
+
+.holt-search-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 1050;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 12vh 0.8rem 0.8rem;
+    background: rgba(15, 15, 15, 0.4);
+}
+
+/* The light backdrop barely shows on a dark page. */
+.dark-mode .holt-search-modal {
+    background: rgba(0, 0, 0, 0.6);
+}
+
+.holt-search-modal[hidden] {
+    display: none;
+}
+
+.holt-search-dialog {
+    display: flex;
+    flex-direction: column;
+    width: 62rem;
+    max-width: 100%;
+    max-height: min(72vh, 64rem);
+    overflow: hidden;
+    border-radius: calc(var(--holt-radius) * 1.5);
+    background: var(--lm-dropdown-menu-bg-color);
+    box-shadow: var(--holt-shadow-menu);
+}
+
+.dark-mode .holt-search-dialog {
+    background: var(--dm-dropdown-menu-bg-color);
+}
+
+.holt-search-dialog form {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex: none;
+    padding: 1.2rem 1.6rem;
+}
+
+.holt-search-dialog form > i.fa-search {
+    flex: none;
+    color: var(--holt-text-3);
+}
+
+.holt-search-dialog .top-search {
+    flex: 1;
+}
+
+.holt-search-dialog .top-search::after {
+    display: none;
+}
+
+/* !important beats the inline padding Otter Wiki leaves for its / hint. */
+.holt-search-dialog #search-query {
+    height: 3.2rem;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+    font-size: 1.8rem;
+}
+
+.holt-search-dialog #search-query:focus {
+    box-shadow: none;
+}
+
+.holt-search {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    padding: 0.6rem;
+    border-top: 1px solid var(--holt-divider);
+    font-size: 1.4rem;
 }
 
 .holt-search-group {
