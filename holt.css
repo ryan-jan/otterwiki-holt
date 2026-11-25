@@ -857,6 +857,14 @@ body[data-page-path] .navbar #edit-page-btn {
     border: 0;
 }
 
+/* A wide table scrolls inside the column instead of widening the page. The rich editor lays out
+ * its own tables, with handles around them that a scrolling box would clip. */
+.page:not(.ProseMirror) table {
+    display: block;
+    max-width: 100%;
+    overflow-x: auto;
+}
+
 .page th {
     background: transparent;
     color: var(--holt-text-2);
