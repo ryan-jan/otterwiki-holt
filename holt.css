@@ -1242,12 +1242,13 @@ form#saveform {
     padding: 0;
 }
 
+/* !important beats the m-lg-20 and mx-lg-20 margins the admin pages put on their cards. */
 #column-main .card {
     background: transparent;
     border: 0;
     box-shadow: none;
     padding: 0;
-    margin: 0 0 3.2rem;
+    margin: 0 0 3.2rem !important;
 }
 
 /* A card's title is a section heading, unless the card opens the page, as on Create page. */
@@ -1263,8 +1264,16 @@ form#saveform {
     margin: 0.8rem 0 2.4rem;
 }
 
-#column-main .card form {
-    max-width: 48rem;
+/* Forms span the column, and every field fills it so fields, help text and dividers share one right
+ * edge, as on GitHub's settings. !important beats the w-md-400 and w-md-600 widths on some selects.
+ * A field with a button beside it, like Sidebar Preferences' page picker, keeps its own width. */
+#column-main .card .form-group > :is(.form-control, .input-group):not(:has(+ .btn)) {
+    width: 100% !important;
+}
+
+/* Settings wraps its forms in w-600, whose !important width would hold them to 60rem. */
+#column-main .card .w-600 {
+    width: 100% !important;
 }
 
 /* Labels sit above their fields. Rows of buttons stay in a row. */
@@ -1586,8 +1595,10 @@ a:hover span.page-match {
         font-size: 1.8rem;
     }
 
-    /* Wide tables and code scroll inside the page instead of widening it. */
-    .page table {
+    /* Wide tables and code scroll inside the page instead of widening it. The admin pages' tables
+     * would otherwise be clipped. */
+    .page table,
+    #column-main .card table {
         display: block;
         max-width: 100%;
         overflow-x: auto;
