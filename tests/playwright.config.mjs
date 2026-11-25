@@ -3,7 +3,7 @@ import { defineConfig, devices } from '@playwright/test';
 export default defineConfig({
   testDir: '.',
   // Each worker starts its own wiki container.
-  workers: 2,
+  workers: 4,
   fullyParallel: true,
   reporter: process.env.CI ? 'github' : 'list',
   use: {
