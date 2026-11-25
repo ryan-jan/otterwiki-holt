@@ -1,0 +1,1595 @@
+/*
+ * Holt, a Notion-style theme for An Otter Wiki. https://github.com/ryan-jan/otterwiki-holt
+ *
+ * Reading first: a narrow centred column, warm ink on white, quiet chrome and tinted callouts. It's
+ * all CSS on top of Halfmoon 1.1.1 (which Otter Wiki is built on) and Otter Wiki's own
+ * otterwiki.css, plus custom.js for the page bar, the outline and search as you type. Halfmoon
+ * reads --lm-* variables in light mode and --dm-* in dark mode.
+ *
+ * To recolour Holt, change the two palette blocks below, or append a file from palettes/ to the
+ * end of this one.
+ */
+
+:root {
+    --holt-font: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica,
+        "Apple Color Emoji", Arial, sans-serif;
+    --holt-font-heading: var(--holt-font);
+    --holt-font-mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, monospace;
+    --holt-radius: 0.6rem;
+    --holt-column: 72rem;
+    --holt-gutter: 3rem;
+
+    --holt-bg: #ffffff;
+    --holt-sidebar: #f8f8f7;
+    --holt-text: #37352f;
+    --holt-text-2: rgba(55, 53, 47, 0.65);
+    --holt-text-3: rgba(55, 53, 47, 0.45);
+    --holt-hover: rgba(55, 53, 47, 0.06);
+    --holt-active: rgba(55, 53, 47, 0.09);
+    --holt-divider: rgba(55, 53, 47, 0.09);
+    --holt-underline: rgba(55, 53, 47, 0.3);
+    /* Palette, light mode. Light fills main buttons, mid is their hover and the focus ring, and
+     * dark is their text and the accent. The default is a soft Notion blue. */
+    --holt-accent-light: #d8e8f8;
+    --holt-accent-mid: #9cc6ef;
+    --holt-accent-dark: #1f5f9e;
+    --holt-selected-bg: #e9f2fb;
+    --holt-selection: rgba(35, 131, 226, 0.28);
+    --holt-accent-ring: rgba(31, 95, 158, 0.2);
+    --holt-link-underline: rgba(31, 95, 158, 0.35);
+
+    --holt-accent: var(--holt-accent-dark);
+    --holt-selected-text: var(--holt-accent-dark);
+    /* Main buttons, like Save */
+    --holt-button-bg: var(--holt-accent-light);
+    --holt-button-bg-hover: var(--holt-accent-mid);
+    --holt-button-text: var(--holt-accent-dark);
+    --holt-code-bg: #f7f6f3;
+    --holt-inline-code: #eb5757;
+    --holt-inline-code-bg: rgba(135, 131, 120, 0.15);
+    --holt-shadow-menu: 0 0 0 1px rgba(15, 15, 15, 0.05), 0 3px 6px rgba(15, 15, 15, 0.1),
+        0 9px 24px rgba(15, 15, 15, 0.2);
+
+    /* Notion's block colours, used for callouts and the highlight. */
+    --holt-gray-bg: #f1f1ef;
+    --holt-blue-bg: #e7f3f8;
+    --holt-green-bg: #edf3ec;
+    --holt-yellow-bg: #fbf3db;
+    --holt-red-bg: #fdebec;
+    --holt-purple-bg: #f4f0f7;
+    --holt-blue: #337ea9;
+    --holt-green: #448361;
+    --holt-yellow: #cb912f;
+    --holt-red: #d44c47;
+    /* GitHub's diff colours, from its Primer light theme */
+    --holt-diff-add-bg: #e6ffec;
+    --holt-diff-add: #1a7f37;
+    --holt-diff-del-bg: #ffebe9;
+    --holt-diff-del: #cf222e;
+    --holt-purple: #9065b0;
+
+    /* Halfmoon */
+    --base-font-family: var(--holt-font);
+    --base-border-radius: var(--holt-radius);
+    --base-line-height: 1.5;
+    --primary-color: var(--holt-accent);
+    --primary-color-light: var(--holt-accent);
+    --primary-color-dark: var(--holt-accent);
+    --primary-box-shadow-color: var(--holt-accent-ring);
+    --navbar-height: 4.6rem;
+
+    --lm-base-body-bg-color: var(--holt-bg);
+    --lm-base-text-color: var(--holt-text);
+    --lm-base-text-color-light: var(--holt-text-2);
+    --lm-navbar-bg-color: var(--holt-bg);
+    --lm-navbar-border-color: transparent;
+    --lm-sidebar-bg-color: var(--holt-sidebar);
+    --lm-sidebar-border-color: transparent;
+    --lm-card-bg-color: var(--holt-bg);
+
+    --button-border-radius: var(--holt-radius);
+    --lm-button-text-color: var(--holt-text);
+    --lm-button-bg-color: transparent;
+    --lm-button-border-color: var(--holt-divider);
+    --lm-button-bg-color-hover: var(--holt-hover);
+    --lm-button-border-color-hover: var(--holt-divider);
+    --lm-button-bg-color-focus: transparent;
+    --lm-button-border-color-focus: var(--holt-divider);
+    --lm-button-box-shadow: none;
+    --lm-button-box-shadow-focus: 0 0 0 0.2rem var(--holt-accent-ring);
+
+    --input-border-radius: var(--holt-radius);
+    --lm-input-bg-color: rgba(242, 241, 238, 0.6);
+    --lm-input-border-color: var(--holt-divider);
+    --lm-input-border-color-hover: var(--holt-divider);
+    --lm-input-bg-color-focus: var(--holt-bg);
+    --lm-input-border-color-focus: var(--holt-accent-mid);
+    --lm-input-box-shadow-focus: 0 0 0 0.2rem var(--holt-accent-ring);
+
+    --dropdown-menu-border-radius: var(--holt-radius);
+    --lm-dropdown-menu-bg-color: var(--holt-bg);
+    --lm-dropdown-menu-border-color: transparent;
+    --lm-dropdown-menu-box-shadow: var(--holt-shadow-menu);
+
+    --lm-code-text-color: var(--holt-text);
+    --lm-code-bg-color: var(--holt-code-bg);
+}
+
+.dark-mode {
+    --holt-bg: #191919;
+    --holt-sidebar: #202020;
+    --holt-text: rgba(255, 255, 255, 0.81);
+    --holt-text-2: rgba(255, 255, 255, 0.46);
+    --holt-text-3: rgba(255, 255, 255, 0.28);
+    --holt-hover: rgba(255, 255, 255, 0.055);
+    --holt-active: rgba(255, 255, 255, 0.08);
+    --holt-divider: rgba(255, 255, 255, 0.094);
+    --holt-underline: rgba(255, 255, 255, 0.3);
+    /* Palette, dark mode. The accent colours are the light-mode ones. */
+    --holt-selected-bg: #1e2a36;
+    --holt-selection: #263d55;
+    --holt-accent-ring: rgba(156, 198, 239, 0.3);
+    --holt-link-underline: rgba(156, 198, 239, 0.4);
+
+    --holt-accent: var(--holt-accent-mid);
+    --holt-selected-text: var(--holt-accent-light);
+    /* Halfmoon's links default to the primary colour, which :root resolved to the light-mode
+     * accent. Links outside the page text, like the dates in History and Blame, use these. */
+    --dm-link-text-color: var(--holt-accent-mid);
+    --dm-link-text-color-hover: var(--holt-accent-light);
+    /* A white tick doesn't show on the mid accent. */
+    --dm-checkbox-checkmark-color: var(--holt-accent-dark);
+    --holt-code-bg: rgba(255, 255, 255, 0.03);
+    --holt-inline-code-bg: rgba(135, 131, 120, 0.15);
+    --holt-shadow-menu: 0 0 0 1px rgba(15, 15, 15, 0.1), 0 3px 6px rgba(15, 15, 15, 0.2),
+        0 9px 24px rgba(15, 15, 15, 0.4);
+
+    --holt-gray-bg: #252525;
+    --holt-blue-bg: #1f282d;
+    --holt-green-bg: #242b26;
+    --holt-yellow-bg: #38311e;
+    --holt-red-bg: #362422;
+    --holt-purple-bg: #2b2430;
+    --holt-blue: #5e87c9;
+    --holt-green: #5b9a75;
+    --holt-yellow: #ca9849;
+    --holt-red: #be524b;
+    --holt-diff-add-bg: rgba(46, 160, 67, 0.15);
+    --holt-diff-add: #3fb950;
+    --holt-diff-del-bg: rgba(248, 81, 73, 0.1);
+    --holt-diff-del: #f85149;
+    --holt-purple: #9d68d3;
+
+    --dm-base-body-bg-color: var(--holt-bg);
+    --dm-base-text-color: var(--holt-text);
+    --dm-base-text-color-light: var(--holt-text-2);
+    --dm-navbar-bg-color: var(--holt-bg);
+    --dm-navbar-border-color: transparent;
+    --dm-sidebar-bg-color: var(--holt-sidebar);
+    --dm-sidebar-border-color: transparent;
+    --dm-card-bg-color: #252525;
+
+    --dm-button-text-color: var(--holt-text);
+    --dm-button-bg-color: transparent;
+    --dm-button-border-color: var(--holt-divider);
+    --dm-button-bg-color-hover: var(--holt-hover);
+    --dm-button-border-color-hover: var(--holt-divider);
+    --dm-button-bg-color-focus: transparent;
+    --dm-button-border-color-focus: var(--holt-divider);
+    --dm-button-box-shadow: none;
+    --dm-button-box-shadow-focus: 0 0 0 0.2rem var(--holt-accent-ring);
+
+    --dm-input-bg-color: rgba(255, 255, 255, 0.055);
+    --dm-input-border-color: var(--holt-divider);
+    --dm-input-border-color-hover: var(--holt-divider);
+    --dm-input-bg-color-focus: rgba(255, 255, 255, 0.055);
+    --dm-input-border-color-focus: var(--holt-accent-mid);
+    --dm-input-box-shadow-focus: 0 0 0 0.2rem var(--holt-accent-ring);
+
+    --dm-dropdown-menu-bg-color: #252525;
+    --dm-dropdown-menu-border-color: transparent;
+    --dm-dropdown-menu-box-shadow: var(--holt-shadow-menu);
+
+    --dm-code-text-color: var(--holt-text);
+    --dm-code-bg-color: var(--holt-code-bg);
+}
+
+/* Base */
+
+body {
+    font-family: var(--holt-font);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+::selection {
+    background: var(--holt-selection);
+}
+
+/* Native checkboxes and radios, such as task lists. */
+input[type="checkbox"],
+input[type="radio"] {
+    accent-color: var(--holt-accent);
+}
+
+/* Navbar: plain and almost invisible */
+
+.navbar {
+    background: var(--holt-bg);
+    border-bottom: 0;
+    box-shadow: none;
+}
+
+.navbar-brand {
+    font-size: 1.5rem;
+    font-weight: 500;
+    color: var(--holt-text);
+}
+
+.navbar-brand img {
+    height: 2.2rem;
+    opacity: 0.8;
+}
+
+/* Halfmoon's 3.2rem line height doesn't fit these 3rem buttons and pushed labels and icons down,
+ * so they're centred with flexbox instead. */
+:is(.navbar, .holt-pagebar) .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 3rem;
+    min-width: 3rem;
+    padding: 0 0.8rem;
+    border-radius: var(--holt-radius);
+    border: 0;
+    font-size: 1.4rem;
+    line-height: 1;
+}
+
+/* Icon buttons are quiet until hovered. Coloured buttons (edit, save, cancel) keep a fill. */
+:is(.navbar, .holt-pagebar) .btn:not(.btn-primary):not(.btn-success):not(.btn-danger),
+#toggle-sidebar-btn {
+    background: transparent;
+    color: var(--holt-text-2);
+}
+
+:is(.navbar, .holt-pagebar) .btn:not(.btn-primary):not(.btn-success):not(.btn-danger):hover,
+#toggle-sidebar-btn:hover {
+    background: var(--holt-hover);
+    color: var(--holt-text);
+}
+
+:is(.navbar, .holt-pagebar) .btn.btn-primary,
+:is(.navbar, .holt-pagebar) .btn.btn-success {
+    background: var(--holt-button-bg);
+    color: var(--holt-button-text);
+}
+
+:is(.navbar, .holt-pagebar) .btn.btn-primary:hover,
+:is(.navbar, .holt-pagebar) .btn.btn-success:hover {
+    background: var(--holt-button-bg-hover);
+    color: var(--holt-button-text);
+}
+
+:is(.navbar, .holt-pagebar) .btn.btn-danger {
+    background: transparent;
+    color: var(--holt-red);
+}
+
+:is(.navbar, .holt-pagebar) .btn.btn-danger:hover {
+    background: var(--holt-red-bg);
+}
+
+.navbar .form-control {
+    height: 3rem;
+    font-size: 1.4rem;
+}
+
+/* Sidebar */
+
+.sidebar {
+    background: var(--holt-sidebar);
+    border-right: 0;
+    box-shadow: inset -1px 0 0 var(--holt-divider);
+    font-size: 1.4rem;
+}
+
+.sidebar-menu {
+    padding: 0.8rem 0.6rem;
+}
+
+.sidebar-link,
+.sidebar .sidebarmenu a,
+.extra-nav .sidebar-link {
+    border-radius: var(--holt-radius);
+    color: var(--holt-text-2);
+    font-weight: 500;
+    font-size: 1.4rem;
+}
+
+.sidebar-link:hover,
+.sidebar .sidebarmenu a:hover,
+.extra-nav .sidebar-link:hover {
+    background: var(--holt-hover);
+    color: var(--holt-text);
+    text-decoration: none;
+}
+
+.sidebar-link.sidebar-active,
+.sidebar .sidebarmenu a[aria-current="page"],
+.extra-nav .sidebar-link.sidebar-active {
+    background: var(--holt-selected-bg);
+    color: var(--holt-selected-text);
+    font-weight: 600;
+}
+
+.sidebar .sidebarmenu a {
+    display: inline-block;
+    padding: 0.2rem 0.8rem;
+    margin-left: -0.8rem;
+}
+
+.sidebar-link-with-icon .sidebar-icon {
+    background: transparent;
+    color: var(--holt-text-3);
+}
+
+.sidebar .collapse-header,
+.extra-nav .collapse-header {
+    color: var(--holt-text-3);
+    font-size: 1.2rem;
+    font-weight: 600;
+    border: 0;
+}
+
+.sidebar .collapse-content,
+.extra-nav .collapse-content {
+    border: 0;
+}
+
+.extra-nav .sidebar-link {
+    color: var(--holt-text-3);
+    font-weight: 400;
+}
+
+.sidebar-otter {
+    opacity: 0.25;
+}
+
+/* The page: one centred reading column */
+
+.content-wrapper {
+    background: var(--holt-bg);
+}
+
+/* Centring replaces Halfmoon's side margins, so the column carries its own gutter. */
+#column-main > .content {
+    box-sizing: border-box;
+    max-width: calc(var(--holt-column) + 2 * var(--holt-gutter));
+    margin-left: auto;
+    margin-right: auto;
+    padding: 0 var(--holt-gutter);
+}
+
+.page {
+    font-size: 1.6rem;
+    line-height: 1.6;
+    color: var(--holt-text);
+}
+
+.content h1,
+.content h2,
+.content h3,
+.content h4,
+.content h5,
+.content h6,
+.page h1,
+.page h2,
+.page h3,
+.page h4,
+.page h5,
+.page h6 {
+    font-family: var(--holt-font-heading);
+    font-weight: 600;
+    line-height: 1.3;
+    letter-spacing: -0.01em;
+    color: var(--holt-text);
+}
+
+.content h1,
+.page h1 {
+    font-size: 4rem;
+    font-weight: 700;
+    line-height: 1.2;
+    margin: 0.8rem 0 1.6rem;
+}
+
+.page h2 {
+    font-size: 2.4rem;
+    margin: 3.2rem 0 0.4rem;
+}
+
+.page h3 {
+    font-size: 2rem;
+    margin: 2.4rem 0 0.4rem;
+}
+
+.page h4,
+.page h5,
+.page h6 {
+    font-size: 1.6rem;
+    margin: 1.6rem 0 0.2rem;
+}
+
+.page p,
+.page li {
+    font-size: 1.6rem;
+}
+
+.page p {
+    margin: 0.4rem 0 0.8rem;
+}
+
+/* Notion links are text-coloured with a faint underline. */
+.page a:not(.anchor):not(.btn) {
+    color: inherit;
+    text-decoration: underline;
+    text-decoration-color: var(--holt-link-underline);
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.2em;
+    transition: text-decoration-color 0.15s ease;
+}
+
+.page a:not(.anchor):not(.btn):hover {
+    text-decoration-color: var(--holt-accent);
+}
+
+/* Otter Wiki sets mark colours with !important. */
+.page mark,
+.dark-mode .page mark {
+    background-color: var(--holt-yellow-bg) !important;
+    color: inherit;
+    border-radius: 0.3rem;
+    padding: 0 0.2em;
+}
+
+.page hr {
+    border: 0;
+    border-top: 1px solid var(--holt-divider);
+    margin: 2.4rem 0;
+}
+
+.page img {
+    border-radius: var(--holt-radius);
+}
+
+/* Breadcrumbs */
+
+.breadcrumb {
+    font-size: 1.4rem;
+}
+
+.breadcrumb-item,
+.breadcrumb-item a {
+    color: var(--holt-text-2);
+}
+
+.breadcrumb-item a:hover {
+    color: var(--holt-text);
+    text-decoration: none;
+}
+
+/* The page bar from custom.js: breadcrumbs on the left and the page's own actions on the right,
+ * like the strip at the top of a Notion page. */
+
+.holt-pagebar {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin: 0.8rem 0 1.6rem;
+}
+
+.holt-pagebar > nav {
+    flex: 1;
+    min-width: 0;
+}
+
+.holt-pagebar .breadcrumb {
+    display: flex;
+    align-items: center;
+    margin: 0;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.holt-pagebar .breadcrumb-item {
+    flex-shrink: 0;
+}
+
+.holt-pagebar .breadcrumb-item:last-child {
+    flex-shrink: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Menu toggles only show a focus ring for the keyboard, not after a click. */
+.btn[data-toggle="dropdown"]:focus:not(:focus-visible) {
+    box-shadow: none;
+}
+
+.holt-pagebar-actions {
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+/* custom.js moves Edit into the page bar. Hiding it here stops it flashing in the navbar first. */
+body[data-page-path] .navbar #edit-page-btn {
+    display: none;
+}
+
+/* Quotes */
+
+.page blockquote {
+    background: transparent;
+    border-left: 3px solid currentColor;
+    border-radius: 0;
+    padding: 0.2rem 0 0.2rem 1.4rem;
+    margin: 0.8rem 0;
+}
+
+.page blockquote p {
+    margin: 0.2rem 0;
+}
+
+/* Code */
+
+.page code {
+    font-family: var(--holt-font-mono);
+    font-size: 85%;
+    color: var(--holt-inline-code);
+    background: var(--holt-inline-code-bg);
+    border: 0;
+    border-radius: 0.4rem;
+    padding: 0.2em 0.4em;
+    /* Halfmoon stops code wrapping. Inline code wraps like text, breaking long paths if needed. */
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+.page pre,
+.page .highlight {
+    background: var(--holt-code-bg);
+    border: 0;
+    border-radius: var(--holt-radius);
+}
+
+.page pre {
+    padding: 2.4rem 1.6rem;
+    font-family: var(--holt-font-mono);
+    font-size: 1.4rem;
+    line-height: 1.5;
+}
+
+.page pre code {
+    white-space: pre;
+    overflow-wrap: normal;
+    color: inherit;
+    background: none;
+    padding: 0;
+    font-size: inherit;
+}
+
+/* Code with line numbers is a table inside .highlight, so flatten it into one surface. */
+.page .highlighttable,
+.page .highlighttable td,
+.page .highlighttable pre,
+.page .highlight pre,
+.page .linenodiv pre {
+    background: transparent !important;
+    border: 0 !important;
+    border-radius: 0;
+    margin: 0;
+}
+
+.page .highlighttable td.linenos,
+.page .linenodiv pre {
+    color: var(--holt-text-3);
+    user-select: none;
+}
+
+/* Tables: plain grid with hairlines, like a Notion simple table */
+
+.page table {
+    background: transparent;
+    border-collapse: collapse;
+    border: 0;
+}
+
+.page th {
+    background: transparent;
+    color: var(--holt-text-2);
+    font-weight: 500;
+    text-align: left;
+}
+
+.page table > thead > tr > th,
+.page table > thead > tr > td,
+.page table > tbody > tr > th,
+.page table > tbody > tr > td,
+.page table > tfoot > tr > th,
+.page table > tfoot > tr > td {
+    border: 1px solid var(--holt-divider) !important;
+    padding: 0.7rem 0.9rem;
+    /* Notion columns start at about 120px, so small tables get even columns, not tight ones. */
+    min-width: 12rem;
+}
+
+/* Callouts: alerts, fancy blocks and spoilers as tinted blocks */
+
+.page .quote-alert,
+.page .alert,
+.page .spoiler,
+.dark-mode .page .alert {
+    background: var(--holt-gray-bg);
+    border: 0;
+    border-radius: var(--holt-radius);
+    box-shadow: none;
+    color: var(--holt-text);
+    padding: 1.6rem 1.6rem 1.6rem 1.4rem;
+}
+
+/* Halfmoon colours the text of alerts in dark mode. */
+.dark-mode .page .alert,
+.dark-mode .page .alert * {
+    color: var(--holt-text);
+}
+
+.page .quote-alert-header {
+    font-weight: 600;
+}
+
+.page .quote-alert-note,
+.page .alert-primary,
+.dark-mode .page .alert-primary {
+    background: var(--holt-blue-bg);
+}
+
+.page .quote-alert-tip,
+.page .alert-success,
+.dark-mode .page .alert-success {
+    background: var(--holt-green-bg);
+}
+
+.page .quote-alert-important {
+    background: var(--holt-purple-bg);
+}
+
+.page .quote-alert-warning,
+.page .alert-secondary,
+.dark-mode .page .alert-secondary {
+    background: var(--holt-yellow-bg);
+}
+
+.page .quote-alert-caution,
+.page .alert-danger,
+.dark-mode .page .alert-danger {
+    background: var(--holt-red-bg);
+}
+
+.page .quote-alert-note .quote-alert-header {
+    color: var(--holt-blue);
+}
+
+.page .quote-alert-tip .quote-alert-header {
+    color: var(--holt-green);
+}
+
+.page .quote-alert-important .quote-alert-header {
+    color: var(--holt-purple);
+}
+
+.page .quote-alert-warning .quote-alert-header {
+    color: var(--holt-yellow);
+}
+
+.page .quote-alert-caution .quote-alert-header {
+    color: var(--holt-red);
+}
+
+.page .alert h1,
+.page .alert h2,
+.page .alert h3,
+.page .alert h4,
+.page .alert h5,
+.page .alert-heading {
+    color: var(--holt-text);
+    font-size: 1.6rem;
+    font-weight: 600;
+    margin-top: 0;
+}
+
+/* Folds look like Notion toggles. */
+.page .collapse-panel,
+.page .collapse-header,
+.page .collapse-content {
+    border: 0;
+    background: transparent;
+    border-radius: var(--holt-radius);
+}
+
+.page .collapse-header:hover {
+    background: var(--holt-hover);
+}
+
+/* Floating surfaces */
+
+.dropdown-menu {
+    padding: 0.6rem;
+}
+
+.dropdown-item-with-icon,
+.dropdown-item {
+    border-radius: 0.4rem;
+}
+
+.modal-content,
+.card {
+    border: 0;
+    box-shadow: var(--holt-shadow-menu);
+}
+
+.sticky-alerts .alert {
+    border-radius: var(--holt-radius);
+    box-shadow: var(--holt-shadow-menu);
+}
+
+.btn {
+    font-weight: 500;
+}
+
+/* Icons: Lucide outline icons in place of Otter Wiki's Font Awesome ones, everywhere it draws
+ * them. Each is an SVG mask filled with the text colour, so it follows light and dark mode. Only
+ * mapped icons are replaced. Anything else keeps its Font Awesome glyph. */
+
+i.fa-bars,
+i.fa-ellipsis-v,
+i.fa-home,
+i.fa-list,
+i.fa-file,
+i.fa-pencil-alt,
+i.fa-eye,
+i.fa-columns,
+i.fa-search,
+i.fa-paperclip,
+i.fa-file-alt,
+i.fa-people-arrows,
+i.fa-edit,
+i.fa-trash-alt,
+i.fa-history,
+i.fa-question-circle,
+i.fa-moon,
+i.fa-sign-in-alt,
+i.fa-sign-out-alt,
+i.fa-cog,
+i.fa-user,
+i.fa-undo,
+i.fa-redo,
+i.fa-bold,
+i.fa-italic,
+i.fa-strikethrough,
+i.fa-heading,
+i.fa-quote-left,
+i.fa-list-ul,
+i.fa-check-square,
+i.fa-ruler-horizontal,
+i.fa-code,
+i.fa-file-code,
+i.fa-layer-group,
+i.fa-eye-slash,
+i.fa-caret-square-down,
+i.fa-info-circle,
+i.fa-exclamation-circle,
+i.fa-times-circle,
+i.fa-bell,
+i.fa-lightbulb,
+i.fa-star,
+i.fa-link,
+i.fa-asterisk,
+i.fa-images,
+i.fa-image,
+i.fa-project-diagram,
+i.fa-table,
+i.fa-plus-circle,
+i.fa-minus-circle,
+i.fa-arrow-up,
+i.fa-arrow-down,
+i.fa-arrow-left,
+i.fa-arrow-right,
+i.fa-align-left,
+i.fa-align-center,
+i.fa-align-right,
+i.fa-exclamation-triangle,
+i.fa-comment-alt,
+i.fa-long-arrow-alt-up,
+i.fa-caret-right,
+i.fa-copy,
+i.fa-clone,
+i.fa-check,
+i.fa-external-link-alt,
+i.fa-angle-left,
+i.fa-angle-right,
+i.fa-angle-double-left,
+i.fa-angle-double-right,
+i.fa-rss,
+i.fa-code-branch,
+i.fa-paste,
+i.fa-markdown,
+i.fa-book,
+i.fa-cogs,
+i.fa-fire,
+i.fa-save,
+i.fa-window-close,
+i.fa-users,
+i.fa-users-cog,
+i.fa-user-edit,
+i.fa-address-card,
+i.fa-envelope,
+i.fa-broom,
+i.fa-drafting-compass,
+i.fa-spinner,
+i.fa-arrows-alt,
+i.fa-expand-arrows-alt,
+i.fa-level-up-alt,
+i.fa-file-archive,
+i.fa-file-pdf,
+i.fa-file-video {
+    display: inline-block;
+    width: 1.8rem;
+    height: 1.8rem;
+    vertical-align: -0.35rem;
+    background-color: currentColor;
+    -webkit-mask: var(--holt-icon) center / contain no-repeat;
+    mask: var(--holt-icon) center / contain no-repeat;
+}
+
+i.fa-bars::before,
+i.fa-ellipsis-v::before,
+i.fa-home::before,
+i.fa-list::before,
+i.fa-file::before,
+i.fa-pencil-alt::before,
+i.fa-eye::before,
+i.fa-columns::before,
+i.fa-search::before,
+i.fa-paperclip::before,
+i.fa-file-alt::before,
+i.fa-people-arrows::before,
+i.fa-edit::before,
+i.fa-trash-alt::before,
+i.fa-history::before,
+i.fa-question-circle::before,
+i.fa-moon::before,
+i.fa-sign-in-alt::before,
+i.fa-sign-out-alt::before,
+i.fa-cog::before,
+i.fa-user::before,
+i.fa-undo::before,
+i.fa-redo::before,
+i.fa-bold::before,
+i.fa-italic::before,
+i.fa-strikethrough::before,
+i.fa-heading::before,
+i.fa-quote-left::before,
+i.fa-list-ul::before,
+i.fa-check-square::before,
+i.fa-ruler-horizontal::before,
+i.fa-code::before,
+i.fa-file-code::before,
+i.fa-layer-group::before,
+i.fa-eye-slash::before,
+i.fa-caret-square-down::before,
+i.fa-info-circle::before,
+i.fa-exclamation-circle::before,
+i.fa-times-circle::before,
+i.fa-bell::before,
+i.fa-lightbulb::before,
+i.fa-star::before,
+i.fa-link::before,
+i.fa-asterisk::before,
+i.fa-images::before,
+i.fa-image::before,
+i.fa-project-diagram::before,
+i.fa-table::before,
+i.fa-plus-circle::before,
+i.fa-minus-circle::before,
+i.fa-arrow-up::before,
+i.fa-arrow-down::before,
+i.fa-arrow-left::before,
+i.fa-arrow-right::before,
+i.fa-align-left::before,
+i.fa-align-center::before,
+i.fa-align-right::before,
+i.fa-exclamation-triangle::before,
+i.fa-comment-alt::before,
+i.fa-long-arrow-alt-up::before,
+i.fa-caret-right::before,
+i.fa-copy::before,
+i.fa-clone::before,
+i.fa-check::before,
+i.fa-external-link-alt::before,
+i.fa-angle-left::before,
+i.fa-angle-right::before,
+i.fa-angle-double-left::before,
+i.fa-angle-double-right::before,
+i.fa-rss::before,
+i.fa-code-branch::before,
+i.fa-paste::before,
+i.fa-markdown::before,
+i.fa-book::before,
+i.fa-cogs::before,
+i.fa-fire::before,
+i.fa-save::before,
+i.fa-window-close::before,
+i.fa-users::before,
+i.fa-users-cog::before,
+i.fa-user-edit::before,
+i.fa-address-card::before,
+i.fa-envelope::before,
+i.fa-broom::before,
+i.fa-drafting-compass::before,
+i.fa-spinner::before,
+i.fa-arrows-alt::before,
+i.fa-expand-arrows-alt::before,
+i.fa-level-up-alt::before,
+i.fa-file-archive::before,
+i.fa-file-pdf::before,
+i.fa-file-video::before {
+    content: none;
+}
+
+i.fa-bars { --holt-icon: url("https://cdn.jsdelivr.net/npm/lucide-static@1.70.0/icons/menu.svg"); }
+i.fa-ellipsis-v { --holt-icon: url("https://cdn.jsdelivr.net/npm/lucide-static@1.70.0/icons/ellipsis.svg"); }
+i.fa-home { --holt-icon: url("https://cdn.jsdelivr.net/npm/lucide-static@1.70.0/icons/house.svg"); }
+i.fa-list { --holt-icon: url("https://cdn.jsdelivr.net/npm/lucide-static@1.70.0/icons/list.svg"); }
+i.fa-file { --holt-icon: url("https://cdn.jsdelivr.net/npm/lucide-static@1.70.0/icons/file-plus.svg"); }
+i.fa-pencil-alt { --holt-icon: url("https://cdn.jsdelivr.net/npm/lucide-static@1.70.0/icons/pencil.svg"); }
+i.fa-eye { --holt-icon: url("https://cdn.jsdelivr.net/npm/lucide-static@1.70.0/icons/eye.svg"); }
+i.fa-columns { --holt-icon: url("https://cdn.jsdelivr.net/npm/lucide-static@1.70.0/icons/columns-2.svg"); }
+i.fa-search { --holt-icon: url("https://cdn.jsdelivr.net/npm/lucide-static@1.70.0/icons/search.svg"); }
+i.fa-paperclip { --holt-icon: url("https://cdn.jsdelivr.net/npm/lucide-static@1.70.0/icons/paperclip.svg"); }
+i.fa-file-alt { --holt-icon: url("https://cdn.jsdelivr.net/npm/lucide-static@1.70.0/icons/history.svg"); }
+i.fa-people-arrows { --holt-icon: url("https://cdn.jsdelivr.net/npm/lucide-static@1.70.0/icons/users.svg"); }
+i.fa-edit { --holt-icon: url("https://cdn.jsdelivr.net/npm/lucide-static@1.70.0/icons/pen-line.svg"); }
+i.fa-trash-alt { --holt-icon: url("https://cdn.jsdelivr.net/npm/lucide-static@1.70.0/icons/trash-2.svg"); }
+i.fa-history { --holt-icon: url("https://cdn.jsdelivr.net/npm/lucide-static@1.70.0/icons/scroll-text.svg"); }
+i.fa-question-circle { --holt-icon: url("https://cdn.jsdelivr.net/npm/lucide-static@1.70.0/icons/circle-help.svg"); }
+i.fa-moon { --holt-icon: url("https://cdn.jsdelivr.net/npm/lucide-static@1.70.0/icons/moon.svg"); }
+i.fa-sign-in-alt { --holt-icon: url("https://cdn.jsdelivr.net/npm/lucide-static@1.70.0/icons/log-in.svg"); }
+i.fa-sign-out-alt { --holt-icon: url("https://cdn.jsdelivr.net/npm/lucide-static@1.70.0/icons/log-out.svg"); }
+i.fa-cog { --holt-icon: url("https://cdn.jsdelivr.net/npm/lucide-static@1.70.0/icons/settings.svg"); }
+i.fa-user { --holt-icon: url("https://cdn.jsdelivr.net/npm/lucide-static@1.70.0/icons/user.svg"); }
+i.fa-undo { --holt-icon: url("https://cdn.jsdelivr.net/npm/lucide-static@1.70.0/icons/undo-2.svg"); }
+i.fa-redo { --holt-icon: url("https://cdn.jsdelivr.net/npm/lucide-static@1.70.0/icons/redo-2.svg"); }
+i.fa-bold { --holt-icon: url("https://cdn.jsdelivr.net/npm/lucide-static@1.70.0/icons/bold.svg"); }
+i.fa-italic { --holt-icon: url("https://cdn.jsdelivr.net/npm/lucide-static@1.70.0/icons/italic.svg"); }
+i.fa-strikethrough { --holt-icon: url("https://cdn.jsdelivr.net/npm/lucide-static@1.70.0/icons/strikethrough.svg"); }
+i.fa-heading { --holt-icon: url("https://cdn.jsdelivr.net/npm/lucide-static@1.70.0/icons/heading.svg"); }
+i.fa-quote-left { --holt-icon: url("https://cdn.jsdelivr.net/npm/lucide-static@1.70.0/icons/text-quote.svg"); }
+i.fa-list-ul { --holt-icon: url("https://cdn.jsdelivr.net/npm/lucide-static@1.70.0/icons/list.svg"); }
+i.fa-check-square { --holt-icon: url("https://cdn.jsdelivr.net/npm/lucide-static@1.70.0/icons/square-check.svg"); }
+i.fa-ruler-horizontal { --holt-icon: url("https://cdn.jsdelivr.net/npm/lucide-static@1.70.0/icons/separator-horizontal.svg"); }
+i.fa-code { --holt-icon: url("https://cdn.jsdelivr.net/npm/lucide-static@1.70.0/icons/code.svg"); }
+i.fa-file-code { --holt-icon: url("https://cdn.jsdelivr.net/npm/lucide-static@1.70.0/icons/square-code.svg"); }
+i.fa-layer-group { --holt-icon: url("https://cdn.jsdelivr.net/npm/lucide-static@1.70.0/icons/layers.svg"); }
+i.fa-eye-slash { --holt-icon: url("https://cdn.jsdelivr.net/npm/lucide-static@1.70.0/icons/eye-off.svg"); }
+i.fa-caret-square-down { --holt-icon: url("https://cdn.jsdelivr.net/npm/lucide-static@1.70.0/icons/square-chevron-down.svg"); }
+i.fa-info-circle { --holt-icon: url("https://cdn.jsdelivr.net/npm/lucide-static@1.70.0/icons/info.svg"); }
+i.fa-exclamation-circle { --holt-icon: url("https://cdn.jsdelivr.net/npm/lucide-static@1.70.0/icons/circle-alert.svg"); }
+i.fa-times-circle { --holt-icon: url("https://cdn.jsdelivr.net/npm/lucide-static@1.70.0/icons/circle-x.svg"); }
+i.fa-bell { --holt-icon: url("https://cdn.jsdelivr.net/npm/lucide-static@1.70.0/icons/bell.svg"); }
+i.fa-lightbulb { --holt-icon: url("https://cdn.jsdelivr.net/npm/lucide-static@1.70.0/icons/lightbulb.svg"); }
+i.fa-star { --holt-icon: url("https://cdn.jsdelivr.net/npm/lucide-static@1.70.0/icons/star.svg"); }
+i.fa-link { --holt-icon: url("https://cdn.jsdelivr.net/npm/lucide-static@1.70.0/icons/link.svg"); }
+i.fa-asterisk { --holt-icon: url("https://cdn.jsdelivr.net/npm/lucide-static@1.70.0/icons/asterisk.svg"); }
+i.fa-images { --holt-icon: url("https://cdn.jsdelivr.net/npm/lucide-static@1.70.0/icons/images.svg"); }
+i.fa-image { --holt-icon: url("https://cdn.jsdelivr.net/npm/lucide-static@1.70.0/icons/image.svg"); }
+i.fa-project-diagram { --holt-icon: url("https://cdn.jsdelivr.net/npm/lucide-static@1.70.0/icons/workflow.svg"); }
+i.fa-table { --holt-icon: url("https://cdn.jsdelivr.net/npm/lucide-static@1.70.0/icons/table.svg"); }
+i.fa-plus-circle { --holt-icon: url("https://cdn.jsdelivr.net/npm/lucide-static@1.70.0/icons/circle-plus.svg"); }
+i.fa-minus-circle { --holt-icon: url("https://cdn.jsdelivr.net/npm/lucide-static@1.70.0/icons/circle-minus.svg"); }
+i.fa-arrow-up { --holt-icon: url("https://cdn.jsdelivr.net/npm/lucide-static@1.70.0/icons/arrow-up.svg"); }
+i.fa-arrow-down { --holt-icon: url("https://cdn.jsdelivr.net/npm/lucide-static@1.70.0/icons/arrow-down.svg"); }
+i.fa-arrow-left { --holt-icon: url("https://cdn.jsdelivr.net/npm/lucide-static@1.70.0/icons/arrow-left.svg"); }
+i.fa-arrow-right { --holt-icon: url("https://cdn.jsdelivr.net/npm/lucide-static@1.70.0/icons/arrow-right.svg"); }
+i.fa-align-left { --holt-icon: url("https://cdn.jsdelivr.net/npm/lucide-static@1.70.0/icons/text-align-start.svg"); }
+i.fa-align-center { --holt-icon: url("https://cdn.jsdelivr.net/npm/lucide-static@1.70.0/icons/text-align-center.svg"); }
+i.fa-align-right { --holt-icon: url("https://cdn.jsdelivr.net/npm/lucide-static@1.70.0/icons/text-align-end.svg"); }
+i.fa-exclamation-triangle { --holt-icon: url("https://cdn.jsdelivr.net/npm/lucide-static@1.70.0/icons/triangle-alert.svg"); }
+i.fa-comment-alt { --holt-icon: url("https://cdn.jsdelivr.net/npm/lucide-static@1.70.0/icons/message-square.svg"); }
+i.fa-long-arrow-alt-up { --holt-icon: url("https://cdn.jsdelivr.net/npm/lucide-static@1.70.0/icons/arrow-up.svg"); }
+i.fa-caret-right { --holt-icon: url("https://cdn.jsdelivr.net/npm/lucide-static@1.70.0/icons/chevron-right.svg"); }
+i.fa-copy { --holt-icon: url("https://cdn.jsdelivr.net/npm/lucide-static@1.70.0/icons/copy.svg"); }
+i.fa-clone { --holt-icon: url("https://cdn.jsdelivr.net/npm/lucide-static@1.70.0/icons/copy.svg"); }
+i.fa-check { --holt-icon: url("https://cdn.jsdelivr.net/npm/lucide-static@1.70.0/icons/check.svg"); }
+i.fa-external-link-alt { --holt-icon: url("https://cdn.jsdelivr.net/npm/lucide-static@1.70.0/icons/external-link.svg"); }
+i.fa-angle-left { --holt-icon: url("https://cdn.jsdelivr.net/npm/lucide-static@1.70.0/icons/chevron-left.svg"); }
+i.fa-angle-right { --holt-icon: url("https://cdn.jsdelivr.net/npm/lucide-static@1.70.0/icons/chevron-right.svg"); }
+i.fa-angle-double-left { --holt-icon: url("https://cdn.jsdelivr.net/npm/lucide-static@1.70.0/icons/chevrons-left.svg"); }
+i.fa-angle-double-right { --holt-icon: url("https://cdn.jsdelivr.net/npm/lucide-static@1.70.0/icons/chevrons-right.svg"); }
+i.fa-rss { --holt-icon: url("https://cdn.jsdelivr.net/npm/lucide-static@1.70.0/icons/rss.svg"); }
+i.fa-code-branch { --holt-icon: url("https://cdn.jsdelivr.net/npm/lucide-static@1.70.0/icons/git-branch.svg"); }
+i.fa-paste { --holt-icon: url("https://cdn.jsdelivr.net/npm/lucide-static@1.70.0/icons/clipboard-paste.svg"); }
+i.fa-markdown { --holt-icon: url("https://cdn.jsdelivr.net/npm/lucide-static@1.70.0/icons/file-type.svg"); }
+i.fa-book { --holt-icon: url("https://cdn.jsdelivr.net/npm/lucide-static@1.70.0/icons/book-open.svg"); }
+i.fa-cogs { --holt-icon: url("https://cdn.jsdelivr.net/npm/lucide-static@1.70.0/icons/settings-2.svg"); }
+i.fa-fire { --holt-icon: url("https://cdn.jsdelivr.net/npm/lucide-static@1.70.0/icons/flame.svg"); }
+i.fa-save { --holt-icon: url("https://cdn.jsdelivr.net/npm/lucide-static@1.70.0/icons/save.svg"); }
+i.fa-window-close { --holt-icon: url("https://cdn.jsdelivr.net/npm/lucide-static@1.70.0/icons/x.svg"); }
+i.fa-users { --holt-icon: url("https://cdn.jsdelivr.net/npm/lucide-static@1.70.0/icons/users.svg"); }
+i.fa-users-cog { --holt-icon: url("https://cdn.jsdelivr.net/npm/lucide-static@1.70.0/icons/user-cog.svg"); }
+i.fa-user-edit { --holt-icon: url("https://cdn.jsdelivr.net/npm/lucide-static@1.70.0/icons/user-pen.svg"); }
+i.fa-address-card { --holt-icon: url("https://cdn.jsdelivr.net/npm/lucide-static@1.70.0/icons/id-card.svg"); }
+i.fa-envelope { --holt-icon: url("https://cdn.jsdelivr.net/npm/lucide-static@1.70.0/icons/mail.svg"); }
+i.fa-broom { --holt-icon: url("https://cdn.jsdelivr.net/npm/lucide-static@1.70.0/icons/brush-cleaning.svg"); }
+i.fa-drafting-compass { --holt-icon: url("https://cdn.jsdelivr.net/npm/lucide-static@1.70.0/icons/drafting-compass.svg"); }
+i.fa-spinner { --holt-icon: url("https://cdn.jsdelivr.net/npm/lucide-static@1.70.0/icons/loader-circle.svg"); }
+i.fa-arrows-alt { --holt-icon: url("https://cdn.jsdelivr.net/npm/lucide-static@1.70.0/icons/move.svg"); }
+i.fa-expand-arrows-alt { --holt-icon: url("https://cdn.jsdelivr.net/npm/lucide-static@1.70.0/icons/expand.svg"); }
+i.fa-level-up-alt { --holt-icon: url("https://cdn.jsdelivr.net/npm/lucide-static@1.70.0/icons/corner-left-up.svg"); }
+i.fa-file-archive { --holt-icon: url("https://cdn.jsdelivr.net/npm/lucide-static@1.70.0/icons/file-archive.svg"); }
+i.fa-file-pdf { --holt-icon: url("https://cdn.jsdelivr.net/npm/lucide-static@1.70.0/icons/file-text.svg"); }
+i.fa-file-video { --holt-icon: url("https://cdn.jsdelivr.net/npm/lucide-static@1.70.0/icons/file-video.svg"); }
+
+/* Icons in text, like callout headers, heading links and the history table, follow the text size. */
+:is(.page, .table, .footnotes, .sidebar-title, .copy-to-clipboard, .btn-xsm, .form-text) i[class*="fa-"] {
+    width: 1.15em;
+    height: 1.15em;
+    vertical-align: -0.2em;
+}
+
+/* Otter Wiki draws search and replace as a flipped search icon, and ordered lists with the
+ * unordered list icon. */
+i.fa-search.fa-flip-both {
+    --holt-icon: url("https://cdn.jsdelivr.net/npm/lucide-static@1.70.0/icons/replace.svg");
+    transform: none;
+}
+
+.navbar a[onclick*="ol()"] i.fa-list-ul {
+    --holt-icon: url("https://cdn.jsdelivr.net/npm/lucide-static@1.70.0/icons/list-ordered.svg");
+}
+
+.btn-editor {
+    background: transparent;
+    border: 0;
+    color: var(--holt-text-2);
+}
+
+.btn-editor:hover {
+    background: var(--holt-hover);
+    color: var(--holt-text);
+}
+
+/* Notion's menus show bare icons, without Halfmoon's box behind them. */
+.dropdown-icon {
+    background: transparent !important;
+    color: var(--holt-text-2);
+}
+
+.breadcrumb i.fa-home {
+    width: 1.5rem;
+    height: 1.5rem;
+}
+
+/* Buttons: words for the editor's Save and Cancel, as Notion does, and quiet icons for the rest.
+ * Edit is a pencil beside the page menu, as on Confluence and GitHub. */
+
+#edit-page-btn {
+    background: transparent;
+    color: var(--holt-text-2);
+}
+
+#edit-page-btn:hover {
+    background: var(--holt-hover);
+    color: var(--holt-text);
+}
+
+/* The pencil's diagonal fills its box, so at full size it looks heavier than the menu's dots. */
+#edit-page-btn i {
+    width: 1.6rem;
+    height: 1.6rem;
+}
+
+#save-page-btn i,
+.navbar a.btn-danger[title="Cancel"] i {
+    display: none;
+}
+
+#save-page-btn::after,
+.navbar a.btn-danger[title="Cancel"]::after {
+    font-size: 1.4rem;
+    font-weight: 500;
+}
+
+#save-page-btn::after {
+    content: "Save";
+}
+
+.navbar a.btn-danger[title="Cancel"]::after {
+    content: "Cancel";
+}
+
+#save-page-btn,
+.navbar a.btn-danger[title="Cancel"] {
+    width: auto !important;
+    padding: 0 1.2rem;
+    /* The navbar squeezes its items on phones. Labels keep their width, and search gives way. */
+    flex-shrink: 0;
+    min-width: max-content;
+}
+
+.navbar a.btn.btn-danger[title="Cancel"] {
+    background: transparent;
+    color: var(--holt-text-2);
+}
+
+.navbar a.btn.btn-danger[title="Cancel"]:hover {
+    background: var(--holt-hover);
+    color: var(--holt-text);
+}
+
+#preview_btn,
+#editor_btn,
+#split_btn {
+    width: auto !important;
+    background: transparent !important;
+    color: var(--holt-text-2) !important;
+}
+
+#preview_btn:hover,
+#editor_btn:hover,
+#split_btn:hover {
+    background: var(--holt-hover) !important;
+    color: var(--holt-text) !important;
+}
+
+/* In the editor the quiet buttons come first and Save comes last, as in Notion's dialogs. */
+#preview_btn,
+#editor_btn {
+    order: 1;
+}
+
+#split_btn {
+    order: 2;
+}
+
+.navbar a.btn-danger[title="Cancel"] {
+    order: 3;
+}
+
+#save-page-btn,
+form#saveform {
+    order: 4;
+}
+
+/* Otter Wiki's own pages. Forms sit in the reading column without a card, as Notion's settings
+ * pages do, and lists like the history are plain rows instead of Bootstrap's striped tables. */
+
+#column-main .content > [class*="col-"],
+#column-main .content > .w-600 {
+    width: 100%;
+    max-width: none;
+    flex: none;
+    padding: 0;
+}
+
+#column-main .card {
+    background: transparent;
+    border: 0;
+    box-shadow: none;
+    padding: 0;
+    margin: 0 0 3.2rem;
+}
+
+/* A card's title is a section heading, unless the card opens the page, as on Create page. */
+#column-main .card-title {
+    font-size: 2.2rem;
+    font-weight: 600;
+    margin: 2.4rem 0 1.6rem;
+}
+
+#column-main .content > div:first-child > .card:first-child > .card-title {
+    font-size: 3.2rem;
+    font-weight: 700;
+    margin: 0.8rem 0 2.4rem;
+}
+
+#column-main .card form {
+    max-width: 48rem;
+}
+
+/* Labels sit above their fields. Rows of buttons stay in a row. */
+#column-main .form-inline .form-group:has(> label) {
+    flex-direction: column;
+    align-items: flex-start;
+    margin-bottom: 1.6rem;
+}
+
+#column-main .form-inline .form-group > label {
+    width: auto !important;
+    margin: 0 0 0.6rem;
+    color: var(--holt-text-2);
+    font-size: 1.4rem;
+    font-weight: 500;
+}
+
+#column-main .form-inline .form-group > .form-control {
+    flex: none;
+    align-self: stretch;
+}
+
+/* One look for every main action, like Save. Delete is a soft red. */
+#column-main .btn-primary:not(#edit-page-btn) {
+    background: var(--holt-button-bg);
+    border-color: transparent;
+    color: var(--holt-button-text);
+}
+
+#column-main .btn-primary:not(#edit-page-btn):hover {
+    background: var(--holt-button-bg-hover);
+    color: var(--holt-button-text);
+}
+
+#column-main .btn-danger {
+    background: var(--holt-red-bg);
+    border-color: transparent;
+    color: var(--holt-red);
+}
+
+#column-main .btn-danger:hover {
+    background: var(--holt-red);
+    color: #fff;
+}
+
+#column-main .card .btn:not(.btn-primary):not(.btn-danger):not(.btn-link) {
+    background: var(--holt-hover);
+    border-color: transparent;
+    color: var(--holt-text);
+}
+
+#column-main .card .btn:not(.btn-primary):not(.btn-danger):not(.btn-link):hover {
+    background: var(--holt-active);
+}
+
+#column-main .btn-link {
+    color: var(--holt-text-2);
+}
+
+/* History and changelog */
+
+#column-main .table-striped tbody tr:nth-child(odd) {
+    background: transparent;
+}
+
+#column-main .table th,
+#column-main .table thead td {
+    color: var(--holt-text-2);
+    font-size: 1.3rem;
+    font-weight: 500;
+    border-bottom: 1px solid var(--holt-divider);
+}
+
+#column-main .table tbody td {
+    border-top: 1px solid var(--holt-divider);
+}
+
+#column-main .table tbody tr:hover {
+    background: var(--holt-hover);
+}
+
+#column-main .table a[href*="/-/revert/"] {
+    color: var(--holt-text-3);
+}
+
+#column-main .table a[href*="/-/revert/"]:hover {
+    color: var(--holt-text);
+}
+
+/* The history repeats Compare Revisions under the table. */
+form[action$="/history"] > div:last-child {
+    display: none;
+}
+
+#column-main .btn-group .btn-square {
+    background: transparent;
+    border: 0;
+    border-radius: var(--holt-radius) !important;
+    color: var(--holt-text-2);
+}
+
+#column-main .btn-group .btn-square:hover {
+    background: var(--holt-hover);
+    color: var(--holt-text);
+}
+
+#column-main .btn-group .btn-square.active {
+    background: var(--holt-selected-bg);
+    color: var(--holt-selected-text);
+    box-shadow: none;
+}
+
+#column-main nav[aria-label="Pagination"] + .text-right {
+    font-size: 1.3rem;
+    color: var(--holt-text-3);
+}
+
+/* Diffs on the commit and compare pages scroll inside themselves, so a long line doesn't widen
+ * the page on a phone. */
+#column-main table.diff {
+    display: block;
+    max-width: 100%;
+    overflow-x: auto;
+}
+
+/* Without its own table box the diff would only be as wide as its longest line. */
+#column-main table.diff > tbody {
+    display: table;
+    width: 100%;
+}
+
+/* GitHub's green and red for added and removed lines, in place of Otter Wiki's brighter ones. */
+#column-main :is(tr, td).added {
+    background-color: var(--holt-diff-add-bg);
+    border-color: var(--holt-diff-add);
+    color: var(--holt-text);
+}
+
+#column-main :is(tr, td).removed {
+    background-color: var(--holt-diff-del-bg);
+    border-color: var(--holt-diff-del);
+    color: var(--holt-text);
+}
+
+/* The full search page */
+
+#column-main h1.content-title {
+    color: var(--holt-text-2);
+    font-size: 1.4rem;
+    font-weight: 500;
+    margin: 0 0 0.8rem;
+}
+
+#column-main h2.content-title:not(.pageindex-header) {
+    font-size: 1.8rem;
+    font-weight: 600;
+    margin: 2.4rem 0 0.4rem !important;
+}
+
+#column-main h2.content-title:not(.pageindex-header) ~ p {
+    color: var(--holt-text-2);
+    font-size: 1.4rem;
+}
+
+.text-match,
+a span.page-match,
+a:hover span.page-match {
+    background: var(--holt-selection) !important;
+    color: inherit !important;
+    border-radius: 0.3rem;
+    padding: 0 0.1rem;
+}
+
+/* The A–Z index */
+
+#column-main h2.pageindex-header {
+    color: var(--holt-text-3);
+    font-size: 1.3rem;
+    font-weight: 600 !important;
+    border-bottom: 1px solid var(--holt-divider);
+    padding-bottom: 0.4rem;
+    margin: 1.6rem 0 0.6rem;
+}
+
+#column-main :is(a.pageindex-page, a.pageindex-folder) {
+    color: var(--holt-text);
+}
+
+#column-main :is(a.pageindex-page, a.pageindex-folder):hover {
+    color: var(--holt-accent);
+}
+
+#column-main a.pageindex-heading {
+    color: var(--holt-text-2);
+}
+
+/* Search as you type, from custom.js. A floating card like Notion's search. */
+
+.holt-search {
+    position: fixed;
+    z-index: 1050;
+    width: 44rem;
+    max-width: calc(100vw - 1.6rem);
+    max-height: min(60vh, 52rem);
+    overflow-y: auto;
+    padding: 0.6rem;
+    background: var(--holt-bg);
+    border-radius: var(--holt-radius);
+    box-shadow: var(--holt-shadow-menu);
+    font-size: 1.4rem;
+}
+
+.dark-mode .holt-search {
+    background: #252525;
+}
+
+.holt-search-group {
+    padding: 0.8rem 0.8rem 0.4rem;
+    color: var(--holt-text-3);
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+
+.holt-search a.holt-search-item {
+    display: grid;
+    grid-template-columns: 2rem 1fr;
+    column-gap: 0.8rem;
+    align-items: center;
+    padding: 0.6rem 0.8rem;
+    border-radius: 0.4rem;
+    color: var(--holt-text);
+    text-decoration: none;
+}
+
+.holt-search a.holt-search-item:hover,
+.holt-search a.holt-search-item[aria-selected="true"] {
+    background: var(--holt-hover);
+    color: var(--holt-text);
+    text-decoration: none;
+}
+
+.holt-search-item::before {
+    content: "";
+    grid-row: span 2;
+    width: 1.8rem;
+    height: 1.8rem;
+    background-color: var(--holt-text-3);
+    -webkit-mask: var(--holt-icon) center / contain no-repeat;
+    mask: var(--holt-icon) center / contain no-repeat;
+}
+
+.holt-search-item[data-icon="file-text"] { --holt-icon: url("https://cdn.jsdelivr.net/npm/lucide-static@1.70.0/icons/file-text.svg"); }
+.holt-search-item[data-icon="hash"] { --holt-icon: url("https://cdn.jsdelivr.net/npm/lucide-static@1.70.0/icons/hash.svg"); }
+.holt-search-item[data-icon="text-search"] { --holt-icon: url("https://cdn.jsdelivr.net/npm/lucide-static@1.70.0/icons/text-search.svg"); }
+.holt-search-item[data-icon="search"] { --holt-icon: url("https://cdn.jsdelivr.net/npm/lucide-static@1.70.0/icons/search.svg"); }
+
+.holt-search-title {
+    font-weight: 500;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.holt-search-detail {
+    grid-column: 2;
+    color: var(--holt-text-2);
+    font-size: 1.25rem;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+}
+
+.holt-search mark {
+    background: var(--holt-selected-bg) !important;
+    color: var(--holt-selected-text);
+    border-radius: 0.2rem;
+    padding: 0;
+}
+
+.holt-search-pending {
+    padding: 0.6rem 0.8rem 0.6rem 3.6rem;
+    color: var(--holt-text-3);
+    font-size: 1.25rem;
+}
+
+.holt-search-item[data-icon="search"] {
+    margin-top: 0.4rem;
+    color: var(--holt-text-2);
+}
+
+/* Heading anchors only appear on hover, so touch screens can't use them. They also wrap onto an
+ * invisible second line under long headings. */
+@media (hover: none) {
+    .page a.anchor {
+        display: none;
+    }
+}
+
+/* Phones, sized like Notion's mobile pages */
+
+@media (max-width: 768px) {
+    :root {
+        --holt-gutter: 2rem;
+    }
+
+    .content h1,
+    .page h1 {
+        font-size: 3rem;
+        margin: 0.4rem 0 1.2rem;
+    }
+
+    .page h2 {
+        font-size: 2.2rem;
+        margin-top: 2.8rem;
+    }
+
+    .page h3 {
+        font-size: 1.8rem;
+    }
+
+    /* Wide tables and code scroll inside the page instead of widening it. */
+    .page table {
+        display: block;
+        max-width: 100%;
+        overflow-x: auto;
+    }
+
+    .page pre {
+        padding: 1.6rem 1.4rem;
+    }
+
+    .page .quote-alert,
+    .page .alert,
+    .page .spoiler {
+        padding: 1.2rem 1.4rem;
+    }
+
+    .navbar-brand {
+        margin-left: 0.4rem !important;
+    }
+
+    /* Blame: each change's commit becomes a header line above its lines, as on GitHub's mobile
+     * site, so the text gets the full width instead of sharing it with a column of commits. */
+    table.blame,
+    table.blame > tbody {
+        display: block;
+    }
+
+    table.blame > tbody > tr {
+        display: flex;
+        flex-wrap: wrap;
+    }
+
+    table.blame > tbody > tr > td[rowspan] {
+        flex: 0 0 100%;
+        padding: 1.2rem 0 0.4rem;
+        border-top: 1px solid var(--holt-divider);
+        color: var(--holt-text-2);
+        font-size: 1.3rem;
+    }
+
+    table.blame > tbody > tr:first-child > td[rowspan] {
+        border-top: 0;
+        padding-top: 0;
+    }
+
+    table.blame td[rowspan] :is(table, tbody, tr, td) {
+        display: inline;
+        padding: 0 0.6rem 0 0;
+        font-size: inherit !important;
+    }
+
+    table.blame td.linenumber {
+        flex: 0 0 3.6rem;
+        padding-left: 0.4rem;
+        color: var(--holt-text-3);
+    }
+
+    table.blame td.tt:not(.linenumber) {
+        flex: 1;
+        min-width: 0;
+        padding-left: 0.8rem;
+    }
+}

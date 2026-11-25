@@ -1,0 +1,20 @@
+/*
+ * Rose: blush and rose with maroon text. Append this file to the end of custom.css to use it.
+ */
+
+:root {
+    --holt-accent-light: #eed2d0;
+    --holt-accent-mid: #eba3b4;
+    --holt-accent-dark: #7b1e2b;
+    --holt-selected-bg: #f7e6e4;
+    --holt-selection: rgba(235, 163, 180, 0.4);
+    --holt-accent-ring: rgba(123, 30, 43, 0.2);
+    --holt-link-underline: rgba(123, 30, 43, 0.35);
+}
+
+.dark-mode {
+    --holt-selected-bg: #3a2328;
+    --holt-selection: #4a2b31;
+    --holt-accent-ring: rgba(235, 163, 180, 0.3);
+    --holt-link-underline: rgba(235, 163, 180, 0.4);
+}
