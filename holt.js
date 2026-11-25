@@ -43,6 +43,72 @@
   actions.append(dropdown);
 })();
 
+// Turns the right-hand "On this page" column into Notion's floating outline: a short line per
+// heading at the page's right edge, which opens into the full outline on hover or focus, or on tap
+// on a touch screen. The links themselves move into the panel, so the highlighting below keeps
+// working on them. Below 1200px Otter Wiki hides that column and keeps its copy in the sidebar.
+(() => {
+  const outline = document.querySelector('#column-extra #extranav-toc');
+  const links = outline ? [...outline.querySelectorAll('a.sidebar-link')] : [];
+  if (links.length < 2) return;
+
+  const toc = document.createElement('nav');
+  toc.className = 'holt-toc';
+  toc.setAttribute('aria-label', 'On this page');
+
+  const ladder = document.createElement('div');
+  ladder.className = 'holt-toc-ladder';
+  ladder.setAttribute('aria-hidden', 'true');
+  for (const link of links) {
+    const rung = document.createElement('span');
+    const level = link.className.match(/sidebar-toc-(\d)/)?.[1] ?? '1';
+    rung.className = `holt-toc-rung holt-toc-rung-${level}`;
+    rung.dataset.tocHref = link.href;
+    ladder.append(rung);
+  }
+
+  const panel = document.createElement('div');
+  panel.className = 'holt-toc-panel';
+  panel.append(...links);
+
+  toc.append(ladder, panel);
+  document.getElementById('page-wrapper').append(toc);
+  document.body.classList.add('holt-has-toc');
+
+  // Like Notion, the first line sits level with the page's title row, measured as if the page were
+  // scrolled to the top, and the outline stays there as the page scrolls.
+  const content = document.getElementById('content-wrapper');
+  const first = document.querySelector('.page')?.firstElementChild;
+  const place = () => {
+    if (!first || !ladder.offsetParent) return;
+    const box = first.getBoundingClientRect();
+    const rowHeight = /^H\d$/.test(first.tagName)
+      ? box.height
+      : parseFloat(getComputedStyle(first).lineHeight) || box.height;
+    const row = box.top + content.scrollTop + rowHeight / 2;
+    const rung = ladder.firstElementChild;
+    toc.style.setProperty('--holt-toc-top', `${row - rung.offsetTop - rung.offsetHeight / 2}px`);
+  };
+  place();
+  window.addEventListener('load', place);
+  window.addEventListener('resize', place);
+
+  const reveal = () => panel.querySelector('.sidebar-active')?.scrollIntoView({ block: 'nearest' });
+  toc.addEventListener('mouseenter', reveal);
+  toc.addEventListener('focusin', reveal);
+
+  // Touch screens have no hover, so a tap opens the outline and a tap anywhere else, or on a
+  // section, closes it.
+  ladder.addEventListener('click', () => {
+    if (!window.matchMedia('(hover: none)').matches) return;
+    toc.classList.add('holt-toc-open');
+    reveal();
+  });
+  document.addEventListener('click', (event) => {
+    if (!ladder.contains(event.target)) toc.classList.remove('holt-toc-open');
+  });
+})();
+
 // Highlights the section being read in "On this page", the way Notion's outline does. Otter Wiki
 // highlights the first heading anywhere on screen, so on short pages a clicked section near the
 // bottom never stays highlighted. This listener is added after Otter Wiki's, so it wins.
@@ -71,9 +137,12 @@
     return passed.at(-1) ?? headings[0];
   };
 
+  const rungs = [...document.querySelectorAll('.holt-toc-rung')];
+
   const highlight = () => {
     const href = hrefOf(current());
     for (const link of links) link.classList.toggle('sidebar-active', link.href === href);
+    for (const rung of rungs) rung.classList.toggle('holt-toc-rung-active', rung.dataset.tocHref === href);
   };
 
   for (const link of links) {
