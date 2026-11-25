@@ -2,7 +2,8 @@
 
 Holt is a Notion-style theme for [An Otter Wiki](https://otterwiki.com). It gives Otter Wiki a calm
 reading column, quiet controls, Lucide icons and a search box that finds pages as you type. It's
-two files dropped into Otter Wiki's `custom` folder, with no changes to Otter Wiki itself.
+one stylesheet and one script, added through two Otter Wiki settings, with no changes to Otter Wiki
+itself.
 
 A holt is an otter's den.
 
@@ -46,26 +47,93 @@ A holt is an otter's den.
 Holt needs Otter Wiki 2.27.0. It may work on other versions, but see
 [Compatibility](#compatibility).
 
-Otter Wiki loads `custom.css` and `custom.js` from `/app/otterwiki/static/custom` in its container.
-Clone this repository and mount its `custom` folder there. With Docker Compose:
+Holt is two files, `holt.css` and `holt.js`. Otter Wiki's `HTML_EXTRA_HEAD` and `HTML_EXTRA_BODY`
+settings add HTML to every page, and Holt uses them to load its files. The icons are embedded in
+`holt.css`, so either way of installing gets everything.
+
+### From jsDelivr
+
+[jsDelivr](https://www.jsdelivr.com) serves each tagged release of this repository. Add the two
+settings to Otter Wiki's environment. With Docker Compose:
+
+```yaml
+services:
+  otterwiki:
+    image: redimp/otterwiki:2.27.0
+    environment:
+      HTML_EXTRA_HEAD: '<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/ryan-jan/otterwiki-holt@v1.0.0/holt.css">'
+      HTML_EXTRA_BODY: '<script src="https://cdn.jsdelivr.net/gh/ryan-jan/otterwiki-holt@v1.0.0/holt.js"></script>'
+```
+
+To upgrade, change the version in both URLs. A new URL means browsers can't show a stale copy.
+
+Each viewer's browser fetches the two files from jsDelivr. If jsDelivr can't be reached, the wiki
+still works, but with Otter Wiki's default look.
+
+### Self-hosted
+
+Download `holt.css` and `holt.js` from a [release](https://github.com/ryan-jan/otterwiki-holt/releases)
+into a folder mounted at `/app/otterwiki/static/custom`, which is where Otter Wiki keeps its
+`custom.css` and `custom.js`. Then point the two settings at them:
 
 ```yaml
 services:
   otterwiki:
     image: redimp/otterwiki:2.27.0
     volumes:
-      - ./app-data:/app-data
-      - ./otterwiki-holt/custom:/app/otterwiki/static/custom:ro
+      - ./custom:/app/otterwiki/static/custom:ro
+    environment:
+      HTML_EXTRA_HEAD: '<link rel="stylesheet" href="/static/custom/holt.css?v=1.0.0">'
+      HTML_EXTRA_BODY: '<script src="/static/custom/holt.js?v=1.0.0"></script>'
 ```
 
-If you already have a `custom` folder, copy `custom/custom.css` and `custom/custom.js` into it
-instead. Otter Wiki serves them straight from disk, so there's no need to restart it.
+Otter Wiki ignores the `?v=`, but browsers treat it as part of the address. Change it when you
+upgrade, so they fetch the new files. Nothing in Holt contacts any other server.
+
+## Colours
+
+The default accent is a soft Notion blue. To change it, add a `:root` block for light mode and a
+`.dark-mode` block for dark mode to your `custom.css`. Holt declares its colours with `:where()`,
+which carries no weight in CSS's priority rules, so yours win even though Holt loads after
+`custom.css`. This example is a green:
+
+```css
+:root {
+    --holt-accent-light: #d7ecdc;
+    --holt-accent-mid: #93cda2;
+    --holt-accent-dark: #22613a;
+    --holt-selected-bg: #e9f5ec;
+    --holt-selection: rgba(68, 131, 97, 0.28);
+    --holt-accent-ring: rgba(34, 97, 58, 0.2);
+    --holt-link-underline: rgba(34, 97, 58, 0.35);
+}
+
+.dark-mode {
+    --holt-selected-bg: #1e3226;
+    --holt-selection: #264534;
+    --holt-accent-ring: rgba(147, 205, 162, 0.3);
+    --holt-link-underline: rgba(147, 205, 162, 0.4);
+}
+```
+
+The three accent colours are used in both modes:
+
+- `--holt-accent-light` fills main buttons, like Save.
+- `--holt-accent-mid` is their hover colour and the focus ring, and the accent in dark mode.
+- `--holt-accent-dark` is the text on main buttons, and the accent in light mode.
+
+The others are the selected sidebar item (`--holt-selected-bg`), selected text
+(`--holt-selection`), the focus ring (`--holt-accent-ring`) and link underlines
+(`--holt-link-underline`). Each needs a light and a dark value.
+
+Every other colour, like the text, callouts and diffs, is a `--holt-*` variable at the top of
+`holt.css`, and can be overridden the same way.
 
 ### Browser caching
 
-Otter Wiki links `custom.css` and `custom.js` without a version in the URL, so browsers can keep
-an old copy for hours after you change them. Safari on iOS is the worst for this, and has no hard
-refresh. If changes don't show up, clear the site's data in the browser.
+Otter Wiki links `custom.css` without a version in its address, so after you change it, browsers
+can keep the old copy for hours. Safari on iOS is the worst for this, and has no hard refresh. If a
+change doesn't show up, clear the site's data in the browser.
 
 To fix it for good, have your reverse proxy tell browsers to check for a new copy on every load.
 When nothing has changed, the check is a tiny "not modified" reply. With nginx:
@@ -86,31 +154,6 @@ wiki.example.com {
 }
 ```
 
-## Colours
-
-The default accent is a soft Notion blue. A rose palette, blush and rose with maroon text, is
-included too. To use a palette from `palettes/`, add it to the end of `custom.css`:
-
-```bash
-cat otterwiki-holt/palettes/rose.css >> otterwiki-holt/custom/custom.css
-```
-
-![The rose palette](screenshots/rose.png)
-
-To make your own, copy `palettes/rose.css` and change its colours. There are three accent colours,
-which are used in both light and dark mode:
-
-- `--holt-accent-light` fills main buttons, like Save.
-- `--holt-accent-mid` is their hover colour, the focus ring, and the accent in dark mode.
-- `--holt-accent-dark` is the text on main buttons and the accent in light mode.
-
-The rest are the selected sidebar item (`--holt-selected-bg`), selected text (`--holt-selection`),
-the focus ring (`--holt-accent-ring`) and link underlines (`--holt-link-underline`). Each one has a
-light and a dark value.
-
-Every other colour, like text, callouts and diffs, is a `--holt-*` variable near the top of
-`custom.css`, if you want to change those too.
-
 ## Compatibility
 
 Holt is tested on Otter Wiki 2.27.0, in Chrome on desktop and phone widths and in Safari on iOS. It
@@ -126,17 +169,18 @@ releases. Some of it depends on Otter Wiki's HTML, and a release could break tho
 - The styling of history, blame, the forms and the other built-in pages assumes their current
   layout.
 - A new Font Awesome icon in an Otter Wiki release keeps its old look until it's added to the map
-  in `custom.css`.
+  in `holt.css`.
 
 Please open an issue if something breaks on a newer Otter Wiki.
 
-## Privacy
+## Updating the icons
 
-The Lucide icons load from [jsDelivr](https://www.jsdelivr.com) at a pinned version, so a viewer's
-browser fetches them from jsDelivr's servers. Nothing else leaves your wiki. To serve the icons
-yourself, download the SVGs from [`lucide-static`](https://www.npmjs.com/package/lucide-static) and
-change the URLs in `custom.css` to point at your copies.
+The Lucide icons are SVGs embedded in `holt.css`, each followed by a comment naming it, like
+`/* lucide house */`. `tools/inline-icons.py` fetches every named icon from `lucide-static` at the
+version set in the script and rewrites them. To change an icon, change its name in the comment and
+run the script.
 
 ## Licence
 
-MIT. See [LICENSE](LICENSE). Lucide is under the ISC licence.
+MIT. See [LICENSE](LICENSE). The embedded [Lucide](https://lucide.dev) icons are under the ISC
+licence. See [LICENSE-lucide](LICENSE-lucide).
