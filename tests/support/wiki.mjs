@@ -63,8 +63,10 @@ export async function startWiki(id) {
     reset() {
       exec(name, 'git', '-C', REPOSITORY, 'reset', '-q', '--hard', seed);
       exec(name, 'git', '-C', REPOSITORY, 'clean', '-qfd');
+      // Releases before drafts have no table to clear.
       exec(name, 'python3', '-c',
-        "import sqlite3; c = sqlite3.connect('/app-data/db.sqlite'); c.execute('DELETE FROM drafts'); c.commit()");
+        "import sqlite3; c = sqlite3.connect('/app-data/db.sqlite')\n" +
+        "try: c.execute('DELETE FROM drafts'); c.commit()\nexcept sqlite3.OperationalError: pass");
     },
     // A page's Markdown as it is in the wiki's repository now.
     read(file) {

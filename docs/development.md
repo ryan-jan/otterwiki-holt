@@ -51,6 +51,22 @@ pages, sit in the same centred column as a wiki page.
 edit apart from the edit itself. Each page in `fallback/` must open in Markdown mode. To cover a new
 piece of syntax, add a page to the matching folder and to the list at the top of the spec.
 
+### Sweeping Otter Wiki releases
+
+`tests/sweep.mjs` runs the integration tests against a range of Otter Wiki releases and reports,
+for each feature, the oldest release from which it works in every release since. With no arguments
+it tests every 2.x release on Docker Hub, which takes a few hours. `--minors` tests only the
+latest patch of each minor release, which is usually enough to find where a feature starts.
+
+```sh
+node tests/sweep.mjs --minors
+node tests/sweep.mjs 2.26.0 2.27.0
+```
+
+It saves one result file per release in `tests/sweep-results`, so an interrupted sweep carries on
+where it stopped, and writes the tables to `tests/sweep-results/summary.md`. Each image is removed
+after its run.
+
 ## Releasing
 
 Every push to `main` runs [semantic-release](https://semantic-release.gitbook.io), which reads the
