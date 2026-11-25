@@ -35,11 +35,16 @@ npm run test:integration
 ```
 
 `OTTERWIKI_VERSION` picks the Otter Wiki release to test against, and defaults to 2.27.0. Each
-suite is tagged by feature, such as `@search` or `@editor-roundtrip`, so `-g` runs one of them:
+suite is tagged by the feature it covers, so `-g` runs one of them. The tags are `@theme`, `@icons`,
+`@page-bar`, `@search`, `@outline`, `@pages`, `@editor`, `@editor-blocks` and `@editor-roundtrip`.
 
 ```sh
 OTTERWIKI_VERSION=2.26.0 npm run test:integration -- -g @editor-roundtrip
 ```
+
+`@icons` fails when an Otter Wiki page draws a Font Awesome icon with no Lucide icon mapped in
+`holt.css`, and names the icon. `@pages` checks that Otter Wiki's own pages, including the admin
+pages, sit in the same centred column as a wiki page.
 
 `@editor-roundtrip` checks the rich editor's promise not to change pages. Each fixture page in
 `roundtrip/` must open in rich mode with its Markdown untouched, and must render the same after an

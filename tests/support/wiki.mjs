@@ -14,6 +14,7 @@ const REPOSITORY = '/app-data/repository';
 export const VERSION = process.env.OTTERWIKI_VERSION ?? '2.27.0';
 
 const docker = (...args) => execFileSync('docker', args, { encoding: 'utf8' }).trim();
+const dockerInput = (input, ...args) => execFileSync('docker', args, { encoding: 'utf8', input }).trim();
 // Otter Wiki runs as www-data, so the repository has to be written as www-data too.
 const exec = (name, ...args) => docker('exec', '-u', 'www-data', name, ...args);
 
@@ -68,6 +69,17 @@ export async function startWiki(id) {
     // A page's Markdown as it is in the wiki's repository now.
     read(file) {
       return exec(name, 'cat', `${REPOSITORY}/${file}`) + '\n';
+    },
+    // Changes a page as a new commit, as if someone had saved it.
+    write(file, content, message = 'Change a page') {
+      dockerInput(content, 'exec', '-i', '-u', 'www-data', name, 'sh', '-c', `cat > "${REPOSITORY}/${file}"`);
+      exec(name, 'git', '-C', REPOSITORY, 'add', '-A');
+      exec(name, 'git', '-C', REPOSITORY, '-c', 'user.name=Holt Test', '-c', 'user.email=test@example.com',
+        'commit', '-q', '-m', message);
+    },
+    // A page's recent revisions, newest first, as Otter Wiki abbreviates them.
+    revisions(file) {
+      return exec(name, 'git', '-C', REPOSITORY, 'log', '--format=%h', '--abbrev=6', '--', file).split('\n');
     },
     commits() {
       return Number(exec(name, 'git', '-C', REPOSITORY, 'rev-list', '--count', 'HEAD'));
