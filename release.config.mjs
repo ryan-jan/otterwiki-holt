@@ -1,6 +1,6 @@
 // Releases are cut from Conventional Commits on main. Each release attaches holt.css, holt.js and
-// the rich text editor's files for self-hosting, and updates the version in the README's install
-// snippets.
+// the rich text editor's files for self-hosting, and updates the version in the install snippets
+// in the README and docs.
 export default {
   branches: ['main'],
   tagFormat: 'v${version}',
@@ -19,13 +19,13 @@ export default {
       '@semantic-release/exec',
       {
         prepareCmd:
-          "sed -i -E 's/(otterwiki-holt@v|holt\\.(css|js)\\?v=)[0-9]+\\.[0-9]+\\.[0-9]+/\\1${nextRelease.version}/g' README.md",
+          "sed -i -E 's/(otterwiki-holt@v|holt\\.(css|js)\\?v=)[0-9]+\\.[0-9]+\\.[0-9]+/\\1${nextRelease.version}/g' README.md docs/*.md",
       },
     ],
     [
       '@semantic-release/git',
       {
-        assets: ['README.md'],
+        assets: ['README.md', 'docs/*.md'],
         message: 'chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}',
       },
     ],
