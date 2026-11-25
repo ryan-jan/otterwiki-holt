@@ -51,6 +51,17 @@ pages, sit in the same centred column as a wiki page.
 edit apart from the edit itself. Each page in `fallback/` must open in Markdown mode. To cover a new
 piece of syntax, add a page to the matching folder and to the list at the top of the spec.
 
+### On GitHub Actions
+
+`.github/workflows/test.yml` runs the tests on every pull request, and the release workflow runs
+them before every release, against Otter Wiki 2.27.0. A failed run uploads Playwright's traces,
+which `npx playwright show-trace` opens. On CI each failing test gets one retry.
+
+`.github/workflows/daily.yml` runs them every morning against Otter Wiki's `latest` image, so a new
+Otter Wiki release that breaks Holt shows up within a day. A failing run opens an issue named after
+the release, or comments on it if it's already open. GitHub turns scheduled workflows off after 60
+days without activity in the repository. Turn it back on from the Actions tab.
+
 ### Sweeping Otter Wiki releases
 
 `tests/sweep.mjs` runs the integration tests against a range of Otter Wiki releases and reports,
@@ -69,7 +80,8 @@ after its run.
 
 ## Releasing
 
-Every push to `main` runs [semantic-release](https://semantic-release.gitbook.io), which reads the
+Every push to `main` runs the integration tests and then
+[semantic-release](https://semantic-release.gitbook.io), which reads the
 [Conventional Commits](https://www.conventionalcommits.org) since the last tag. A `fix:` releases a
 patch and a `feat:` releases a minor version. It tags the release, attaches the files for
 self-hosting and updates the versions in the install snippets in the README and these docs.

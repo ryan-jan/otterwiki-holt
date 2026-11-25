@@ -1,0 +1,41 @@
+name: Daily Otter Wiki check
+
+# Catches an Otter Wiki release that breaks Holt within a day of it coming out. GitHub turns
+# schedules off after 60 days without activity in the repository, and they can be turned back on
+# from the Actions tab.
+on:
+  schedule:
+    - cron: '17 6 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    uses: ./.github/workflows/test.yml
+    with:
+      otterwiki-version: latest
+
+  report:
+    needs: test
+    if: failure()
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
+      # One open issue per Otter Wiki release, with a comment for each further failing day.
+      - env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          version=$(gh release view --repo redimp/otterwiki --json tagName --jq .tagName)
+          title="Integration tests fail on Otter Wiki ${version}"
+          body="The daily run against Otter Wiki's latest image failed. See ${RUN_URL} for the failing tests and traces."
+          existing=$(gh issue list --state open --search "\"${title}\" in:title" --json number --jq '.[0].number // empty')
+          if [ -n "$existing" ]; then
+            gh issue comment "$existing" --body "$body"
+          else
+            gh issue create --title "$title" --body "$body"
+          fi
