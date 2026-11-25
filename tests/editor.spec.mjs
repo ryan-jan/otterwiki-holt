@@ -1,7 +1,8 @@
 import { END, expect, markdownWhen, openEditor, openRichEditor, test } from './support/test.mjs';
 
 const toggle = (page) => page.locator('#holt-rich-btn');
-const codeMirror = (page) => page.locator('#editor_block > .cm-editor');
+// Otter Wiki's Markdown editor, CodeMirror 6 from 2.26 and CodeMirror 5 before.
+const codeMirror = (page) => page.locator('#editor_block > .cm-editor, .CodeMirror').first();
 
 test.describe('@editor', () => {
   test('opens in rich mode and hides what only Markdown mode needs', async ({ page }) => {
