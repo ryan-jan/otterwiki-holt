@@ -19,6 +19,7 @@ import * as icons from './icons.js';
 
 const mac = /Mac|iPhone|iPad/.test(navigator.platform);
 const ALT = mac ? 'Option' : 'Alt';
+const DUPLICATE_KEY = mac ? '⌘D' : 'Ctrl+D';
 
 let tooltip = null;
 
@@ -184,13 +185,18 @@ class HoltBlockHandle {
     const menu = document.createElement('div');
     menu.className = 'holt-block-menu';
     menu.setAttribute('role', 'menu');
-    const button = (icon, label, run, current = false) => {
+    const button = (icon, label, run, current = false, shortcut = '') => {
       const element = document.createElement('button');
       element.type = 'button';
       element.className = 'holt-block-menu-item';
       element.setAttribute('role', 'menuitem');
       element.innerHTML = `<span class="milkdown-icon">${icon}</span>`;
       element.append(label);
+      if (shortcut) {
+        const hint = Object.assign(document.createElement('kbd'), { className: 'holt-block-menu-shortcut' });
+        hint.textContent = shortcut;
+        element.append(hint);
+      }
       if (current) element.setAttribute('aria-current', 'true');
       element.addEventListener('click', () => {
         this.#closeMenu();
@@ -219,7 +225,7 @@ class HoltBlockHandle {
     button(icons.copy, 'Duplicate', () => {
       const tr = view.state.tr.insert(pos + node.nodeSize, node);
       view.dispatch(tr.setSelection(NodeSelection.create(tr.doc, pos + node.nodeSize)));
-    });
+    }, false, DUPLICATE_KEY);
     button(icons.remove, 'Delete', () => view.dispatch(view.state.tr.delete(pos, pos + node.nodeSize)));
 
     document.body.append(menu);

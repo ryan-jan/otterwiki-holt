@@ -3,10 +3,13 @@
 The editor opens in rich text mode, with the page in its reading column and Holt's typography, so
 it looks as it will once saved. It works much like Notion's editor.
 
-- Type `/` for headings, lists, quotes, tables, code, emoji, wiki links and Otter Wiki's own blocks.
+- Type `/` for headings, lists, quotes, tables, code, emoji, wiki links, attachments and Otter Wiki's
+  own blocks. Attachment lists the page's attachments, and can upload a new one.
 - Hover over a block for its handle. Click `+` to add a block below, or Option-click (Alt-click
   elsewhere) to add one above. Drag `⋮⋮` to move the block, or click it to turn the block into
   another kind, duplicate it or delete it.
+- Press ⌘⇧↑ or ⌘⇧↓ (Ctrl+Shift+↑ or ↓ elsewhere) to move the block you're in, and ⌘D (Ctrl+D) to
+  duplicate it. In a list, these move or duplicate the list item.
 - Type `[[` to link to a page, picked from the wiki's pages as you type.
 - Select text for bold, italic, links, highlight and the other formatting.
 - On wide screens the floating outline follows the headings as you edit them.
@@ -17,8 +20,8 @@ it looks as it will once saved. It works much like Notion's editor.
 
 The `</>` button beside Save switches to the Markdown editor, and the wand switches back. Holt
 remembers which you prefer, in each browser. Markdown mode has the preview buttons and the
-attachment and wiki link panels. Rich mode shows the page as it will look, and adds links and images
-from the `/` menu.
+attachment and wiki link panels. Rich mode shows the page as it will look, and inserts wiki links and
+attachments from the `/` menu.
 
 ## How it keeps pages safe
 

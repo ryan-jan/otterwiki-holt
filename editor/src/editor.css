@@ -347,6 +347,74 @@
   gap: 0.5rem;
 }
 
+.otter-dialog-title {
+  margin: 0 0 1.2rem;
+  font-size: 1.6rem;
+  font-weight: 600;
+}
+
+/* The attachment picker, from the / menu. */
+.otter-attachment-list {
+  display: flex;
+  flex-direction: column;
+  max-height: min(50vh, 40rem);
+  margin: 0 -0.8rem 1.6rem;
+  overflow-y: auto;
+}
+
+.otter-attachment {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+  width: 100%;
+  padding: 0.6rem 0.8rem;
+  border: 0;
+  border-radius: 0.4rem;
+  background: transparent;
+  color: var(--holt-text);
+  font-size: 1.4rem;
+  text-align: left;
+  cursor: pointer;
+}
+
+.otter-attachment:is(:hover, :focus-visible) {
+  background: var(--holt-hover);
+  outline: none;
+}
+
+.otter-attachment-preview {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 4rem;
+  height: 4rem;
+  overflow: hidden;
+  border-radius: 0.4rem;
+  background: var(--holt-hover);
+  color: var(--holt-text-3);
+  font-size: 1.1rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.otter-attachment-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.otter-attachment-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.otter-attachment-empty {
+  margin-bottom: 1.6rem;
+  color: var(--holt-text-3);
+}
+
 .otter-emoji-popover {
   position: fixed;
   z-index: 2000;
@@ -488,6 +556,17 @@
   content: "✓";
   margin-left: auto;
   color: var(--holt-text-2);
+}
+
+.holt-block-menu-shortcut {
+  margin-left: auto;
+  padding: 0 0 0 1.6rem;
+  border: 0;
+  background: none;
+  box-shadow: none;
+  color: var(--holt-text-3);
+  font-family: var(--holt-font);
+  font-size: 1.2rem;
 }
 
 .holt-block-menu-divider {

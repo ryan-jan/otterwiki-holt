@@ -47,3 +47,13 @@ export const attachmentUrl = (filename) =>
 export function wikiPages() {
   return [...document.querySelectorAll('#wikilink option')].map((o) => o.value).filter(Boolean);
 }
+
+// The page's attachments, from the editor's attachment panel. Otter Wiki gives images a thumbnail.
+export function pageAttachments() {
+  return [...document.querySelectorAll('#attachment-filename option')]
+    .filter((option) => option.value)
+    .map((option) => {
+      const [filename, url, thumbnail] = option.value.split('/--/');
+      return { filename, url, thumbnail };
+    });
+}

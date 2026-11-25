@@ -34,7 +34,7 @@ import {
 import { replaceAll } from '@milkdown/kit/utils';
 
 import { RAW_LANG, formatWikilink, protect, unprotect } from './dialect.js';
-import { askWikilink } from './dialogs.js';
+import { askAttachment, askWikilink } from './dialogs.js';
 import { openEmojiPicker } from './emoji.js';
 import { attachmentUrl, renderMarkdown, uploadAttachment } from './otter.js';
 import {
@@ -45,6 +45,7 @@ import {
   toggleOtterMarkCommand,
 } from './plugins.js';
 import { holtBlockHandle } from './block-handle.js';
+import { blockKeys } from './block-keys.js';
 import { createOutline } from './outline.js';
 import { pageLinkPicker } from './page-link.js';
 import { codeBlockView, invalidRawBlocks, markPageLoaded } from './raw-block.js';
@@ -66,6 +67,7 @@ const ICONS = {
   spoiler: icon('M12 5c-5 0-9 4-10 7 1 3 5 7 10 7s9-4 10-7c-1-3-5-7-10-7Zm0 11a4 4 0 1 1 0-8 4 4 0 0 1 0 8Z'),
   fold: icon('M7 10l5 5 5-5Z'),
   maths: icon('M4 4h16v2H8l6 6-6 6h12v2H4v-2l6-6-6-6Z'),
+  attachment: icon('M16.5 6v11.5a4 4 0 0 1-8 0V5a2.5 2.5 0 0 1 5 0v10.5a1 1 0 0 1-2 0V6H10v9.5a2.5 2.5 0 0 0 5 0V5a4 4 0 0 0-8 0v12.5a5.5 5.5 0 0 0 11 0V6Z'),
 };
 
 const RAW_TEMPLATES = {
@@ -210,6 +212,38 @@ async function insertWikilink(ctx, { clearBlock }) {
   editorView.focus();
 }
 
+function chooseFiles() {
+  return new Promise((resolve) => {
+    const input = Object.assign(document.createElement('input'), { type: 'file', multiple: true });
+    input.addEventListener('change', () => resolve([...input.files]));
+    input.addEventListener('cancel', () => resolve([]));
+    input.click();
+  });
+}
+
+async function insertAttachment(ctx) {
+  const editorView = ctx.get(editorViewCtx);
+  ctx.get(commandsCtx).call(clearTextInCurrentBlockCommand.key);
+  const choice = await askAttachment();
+  const { schema } = editorView.state;
+  let nodes = [];
+  if (choice === 'upload') {
+    nodes = await uploader(await chooseFiles(), schema);
+  } else if (choice) {
+    const url = attachmentUrl(choice.filename);
+    nodes = [
+      choice.thumbnail
+        ? schema.nodes.image.createAndFill({ src: url, alt: choice.filename })
+        : schema.text(choice.filename, [schema.marks.link.create({ href: url })]),
+    ];
+  }
+  if (nodes.length) {
+    const { from, to } = editorView.state.selection;
+    editorView.dispatch(editorView.state.tr.replaceWith(from, to, nodes).scrollIntoView());
+  }
+  editorView.focus();
+}
+
 function emoji(ctx, { clearBlock }) {
   if (clearBlock) ctx.get(commandsCtx).call(clearTextInCurrentBlockCommand.key);
   openEmojiPicker(ctx.get(editorViewCtx), EMOJI_DATA);
@@ -257,6 +291,11 @@ function createCrepe(root, markdown) {
           icon: ICONS.wikilink,
           onRun: (ctx) => insertWikilink(ctx, { clearBlock: true }),
         });
+        group.addItem('attachment', {
+          label: 'Attachment',
+          icon: ICONS.attachment,
+          onRun: (ctx) => insertAttachment(ctx),
+        });
         for (const [key, { label, text }] of Object.entries(RAW_TEMPLATES)) {
           group.addItem(key, { label, icon: ICONS[key], onRun: (ctx) => insertRawBlock(ctx, text) });
         }
@@ -302,6 +341,7 @@ function createCrepe(root, markdown) {
     .config(holtBlockHandle)
     .use(otterPlugins)
     .use(pageLinkPicker)
+    .use(blockKeys)
     .use(codeBlockView);
   instance.on((listener) => {
     listener.updated(() => {
