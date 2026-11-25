@@ -350,7 +350,9 @@
     textRequest = new AbortController();
     const body = new FormData();
     body.append('query', query);
-    body.append('csrf_token', form.querySelector('input[name="csrf_token"]').value);
+    // The form has no token when CSRF protection is off, as it was before Otter Wiki 2.20.
+    const token = form.querySelector('input[name="csrf_token"]')?.value;
+    if (token) body.append('csrf_token', token);
     const response = await fetch(form.action, { method: 'POST', body, signal: textRequest.signal });
     const doc = new DOMParser().parseFromString(await response.text(), 'text/html');
     return [...doc.querySelectorAll('#column-main h2.content-title > a')].map((link) => {
