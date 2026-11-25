@@ -37,8 +37,7 @@ explain each one in more detail.
 
 ## Installing
 
-Holt needs Otter Wiki 2.27.0. It may work on other versions, but see
-[Compatibility](docs/compatibility.md).
+Holt needs Otter Wiki 2.26.0 or later. See [Compatibility](docs/compatibility.md).
 
 Otter Wiki's `HTML_EXTRA_HEAD` and `HTML_EXTRA_BODY` settings add HTML to every page, and Holt uses
 them to load `holt.css` and `holt.js`. On edit pages, `holt.js` also loads the rich text editor's

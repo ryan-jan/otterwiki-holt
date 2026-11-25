@@ -1,7 +1,7 @@
 # Compatibility
 
-Holt is tested on Otter Wiki 2.27.0, in Chrome on desktop and phone widths and in Safari on iOS. It
-uses modern CSS such as `:has()`, so it needs a browser from 2024 or later.
+Holt needs Otter Wiki 2.26.0 or later. It's tested in Chrome on desktop and phone widths and in
+Safari on iOS. It uses modern CSS such as `:has()`, so it needs a browser from 2024 or later.
 
 Most of it is CSS over Otter Wiki's own variables and classes, which changes little between
 releases. Some of it depends on Otter Wiki's HTML, and a release could break those parts:
