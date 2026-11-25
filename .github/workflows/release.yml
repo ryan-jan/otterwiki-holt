@@ -8,10 +8,16 @@ permissions:
   contents: read
 
 jobs:
+  # A release only goes out once the integration tests pass.
+  test:
+    uses: ./.github/workflows/test.yml
+
   release:
+    needs: test
     runs-on: ubuntu-latest
     permissions:
-      # Tags, releases and the README commit, plus comments on released issues and pull requests.
+      # Tags, releases and the README and docs commit, plus comments on released issues and pull
+      # requests.
       contents: write
       issues: write
       pull-requests: write

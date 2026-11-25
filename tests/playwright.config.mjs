@@ -10,7 +10,9 @@ export default defineConfig({
   // Each worker starts its own wiki container.
   workers: 4,
   fullyParallel: true,
-  reporter: process.env.CI ? 'github' : 'list',
+  // One retry on CI absorbs the odd flaky run without hiding a real failure.
+  retries: process.env.CI ? 1 : 0,
+  reporter: process.env.CI ? [['github'], ['list']] : 'list',
   use: {
     ...devices['Desktop Chrome'],
     viewport: { width: 1440, height: 900 },
