@@ -22,6 +22,30 @@ npm run build
 
 Then commit the source and the rebuilt `holt-editor.*` and `holt-emoji.json` together.
 
+## Integration tests
+
+The tests in `tests/` drive a real Otter Wiki with [Playwright](https://playwright.dev). Each test
+worker starts Otter Wiki in Docker, loads Holt from the working tree and seeds the wiki with the
+pages in `tests/fixtures/wiki`. Every test starts from that seed. They need Docker running.
+
+```sh
+npm ci
+npx playwright install chromium
+npm run test:integration
+```
+
+`OTTERWIKI_VERSION` picks the Otter Wiki release to test against, and defaults to 2.27.0. Each
+suite is tagged by feature, such as `@search` or `@editor-roundtrip`, so `-g` runs one of them:
+
+```sh
+OTTERWIKI_VERSION=2.26.0 npm run test:integration -- -g @editor-roundtrip
+```
+
+`@editor-roundtrip` checks the rich editor's promise not to change pages. Each fixture page in
+`roundtrip/` must open in rich mode with its Markdown untouched, and must render the same after an
+edit apart from the edit itself. Each page in `fallback/` must open in Markdown mode. To cover a new
+piece of syntax, add a page to the matching folder and to the list at the top of the spec.
+
 ## Releasing
 
 Every push to `main` runs [semantic-release](https://semantic-release.gitbook.io), which reads the
