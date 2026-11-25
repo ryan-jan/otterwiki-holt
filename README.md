@@ -20,11 +20,16 @@ A holt is an otter's den.
 - **Page bar.** Edit and the page menu (attachments, history, blame, rename and delete) move out of
   the top bar into a row beside the breadcrumbs, where Notion and Confluence put them. Edit is a
   quiet pencil, and `e` still opens the editor.
-- **Search as you type.** The search box lists matching pages and headings straight away, then
-  matches in page text a moment later. Arrow keys and Enter work, and the last row opens Otter
-  Wiki's full search.
-- **Outline.** "On this page" highlights the section you're reading, keeps a clicked section
-  highlighted, and on phones closes the sidebar once you pick one.
+- **Search.** The search box becomes a button that opens a centred search dialog, as in Notion,
+  from a click, `/` or ⌘K / Ctrl+K. It lists matching pages and headings as you type, then matches
+  in page text a moment later. Arrow keys and Enter work, and the last row opens Otter Wiki's full
+  search.
+- **Outline.** On wide screens "On this page" becomes Notion's floating outline, a short line per
+  heading at the page's right edge that opens into the full outline on hover. It highlights the
+  section you're reading and keeps a clicked section highlighted. On smaller screens it stays in
+  the sidebar, which closes on phones once you pick a section.
+- **Full width.** Each page's menu has a Full width switch, as in Notion, remembered per page in
+  each browser.
 - **Icons.** Every Font Awesome icon Otter Wiki draws is replaced with its
   [Lucide](https://lucide.dev) outline equivalent.
 - **Otter Wiki's own pages.** History, changelog, blame, diffs, search results, the A–Z index and
