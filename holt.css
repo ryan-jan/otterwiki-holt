@@ -411,20 +411,24 @@ input[type="radio"] {
     opacity: 0.25;
 }
 
-/* Floating outline, as in Notion. holt.js moves "On this page" out of its column into .holt-toc, so
- * the page takes the full width and centres. It shows from 1200px, where Otter Wiki shows that
- * column; below that the outline stays in the sidebar. */
+/* Floating outline, as in Notion. holt.js moves "On this page" out of its column into .holt-toc. It
+ * shows from 1200px, where Otter Wiki shows that column; below that the outline stays in the
+ * sidebar. */
 
 .holt-toc {
     display: none;
 }
 
 @media (min-width: 1200px) {
-    body.holt-has-toc #column-extra {
+    /* Otter Wiki keeps the outline's column even when there's no outline to show, as on diffs and
+     * pages without headings, which pushed the page off centre. Once holt.js moves the outline out,
+     * the column is empty too. Either way it goes, and the page takes the full width and centres.
+     * Otter Wiki's diff template leaves a div open, so there the column sits inside #column-main. */
+    .row:has(#extranav-toc):not(:has(#column-extra a.sidebar-link + a.sidebar-link)) #column-extra {
         display: none !important;
     }
 
-    body.holt-has-toc #column-main {
+    .row:has(#extranav-toc):not(:has(#column-extra a.sidebar-link + a.sidebar-link)) > #column-main {
         flex: 0 0 100%;
         max-width: 100%;
     }

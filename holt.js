@@ -73,7 +73,6 @@
 
   toc.append(ladder, panel);
   document.getElementById('page-wrapper').append(toc);
-  document.body.classList.add('holt-has-toc');
 
   // Like Notion, the first line sits level with the page's title row, measured as if the page were
   // scrolled to the top, and the outline stays there as the page scrolls.
