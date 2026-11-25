@@ -1679,8 +1679,8 @@ body:has(#content_editor):not(.holt-editor-settled) :is(#editor_block > .cm-edit
     animation: holt-reveal 0s 8s forwards;
 }
 
-/* Centred beside the sidebar, where rich mode's reading column appears, rather than in the editor's
- * column, which still leaves room for the hidden side panels. */
+/* Centred beside the sidebar, where rich mode's reading column appears. The editor's own column is
+ * narrower while it leaves room for the hidden side panels. */
 body:has(#content_editor):not(.holt-editor-settled) #content-wrapper::before {
     content: "";
     position: absolute;

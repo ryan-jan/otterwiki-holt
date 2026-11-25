@@ -1,5 +1,5 @@
 // Holt's block handle, in place of Crepe's, with Notion's behaviour. The + adds a block below, or
-// above with Option or Alt, and opens the / menu. The ⋮⋮ still drags, and a click opens a menu to
+// above with Option or Alt, and opens the / menu. The ⋮⋮ drags, and a click opens a menu to
 // turn the block into another kind, duplicate it or delete it. Each has Notion's tooltip.
 
 import { commandsCtx, editorViewCtx } from '@milkdown/kit/core';
@@ -254,8 +254,8 @@ class HoltBlockHandle {
   }
 }
 
-// Replaces the view Crepe's block-edit feature gives the block plugin. It must be configured after
-// that feature, which it is when used after the editor's features are added.
+// Replaces the view Crepe's block-edit feature gives the block plugin, so it must be configured
+// after the editor's features.
 export const holtBlockHandle = (ctx) => {
   ctx.set(block.key, { view: () => new HoltBlockHandle(ctx) });
 };

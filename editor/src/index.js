@@ -136,7 +136,7 @@ function leavePreviews() {
   if (edit && edit.style.display !== 'none') edit.click();
 }
 
-// The button shows the mode it switches to, quietly, like the other editor buttons.
+// The button shows the mode it switches to.
 function showMode(rich, title) {
   button.setAttribute('aria-pressed', String(rich));
   button.title = title ?? (rich ? 'Edit as Markdown' : 'Edit as rich text');
@@ -169,7 +169,6 @@ function flush() {
 
 const normaliseHtml = (html) => html.replace(/>\s+</g, '><').replace(/\s+/g, ' ').trim();
 
-// True when Otter Wiki renders the round-tripped Markdown exactly like the original.
 async function survivesRoundTrip(original) {
   const roundTripped = richMarkdown();
   if (roundTripped === withNewline(original)) return true;

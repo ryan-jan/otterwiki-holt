@@ -158,7 +158,7 @@ export function validateRaw(text) {
   const trimmed = text.replace(/\n+$/, '');
   const segments = segment(trimmed);
   if (segments.length === 1 && segments[0].kind === 'fancy') {
-    // Otter lets an unclosed ::: run to the end of the page, which here would swallow the rest.
+    // An unclosed ::: still scans as one block, running to the end, so it needs its own check.
     const lines = trimmed.split('\n');
     const closed = lines.length > 1 && /^ {0,3}(:{3,}|~{3,})[~:]* *$/.test(lines.at(-1));
     return closed ? null : 'This block needs a closing ::: line.';
