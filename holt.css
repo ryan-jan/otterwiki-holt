@@ -423,12 +423,13 @@ input[type="radio"] {
     /* Otter Wiki keeps the outline's column even when there's no outline to show, as on diffs and
      * pages without headings, which pushed the page off centre. Once holt.js moves the outline out,
      * the column is empty too. Either way it goes, and the page takes the full width and centres.
-     * Otter Wiki's diff template leaves a div open, so there the column sits inside #column-main. */
-    .row:has(#extranav-toc):not(:has(#column-extra a.sidebar-link + a.sidebar-link)) #column-extra {
+     * Otter Wiki's diff template leaves a div open, so there the column sits inside #column-main.
+     * The editor's column also holds its attachment and wiki link panels, so it stays. */
+    .row:has(#extranav-toc):not(:has(#column-extra a.sidebar-link + a.sidebar-link, #extranav-attachments)) #column-extra {
         display: none !important;
     }
 
-    .row:has(#extranav-toc):not(:has(#column-extra a.sidebar-link + a.sidebar-link)) > #column-main {
+    .row:has(#extranav-toc):not(:has(#column-extra a.sidebar-link + a.sidebar-link, #extranav-attachments)) > #column-main {
         flex: 0 0 100%;
         max-width: 100%;
     }
@@ -1094,6 +1095,7 @@ i.fa-arrows-alt,
 i.fa-expand-arrows-alt,
 i.fa-level-up-alt,
 i.fa-arrows-alt-h,
+i.fa-magic,
 i.fa-file-archive,
 i.fa-file-pdf,
 i.fa-file-video {
@@ -1196,6 +1198,7 @@ i.fa-arrows-alt::before,
 i.fa-expand-arrows-alt::before,
 i.fa-level-up-alt::before,
 i.fa-arrows-alt-h::before,
+i.fa-magic::before,
 i.fa-file-archive::before,
 i.fa-file-pdf::before,
 i.fa-file-video::before {
@@ -1292,6 +1295,7 @@ i.fa-arrows-alt { --holt-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.
 i.fa-expand-arrows-alt { --holt-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' %3E%3Cpath d='m15 15 6 6' /%3E%3Cpath d='m15 9 6-6' /%3E%3Cpath d='M21 16v5h-5' /%3E%3Cpath d='M21 8V3h-5' /%3E%3Cpath d='M3 16v5h5' /%3E%3Cpath d='m3 21 6-6' /%3E%3Cpath d='M3 8V3h5' /%3E%3Cpath d='M9 9 3 3' /%3E%3C/svg%3E"); } /* lucide expand */
 i.fa-level-up-alt { --holt-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' %3E%3Cpath d='M14 9 9 4 4 9' /%3E%3Cpath d='M20 20h-7a4 4 0 0 1-4-4V4' /%3E%3C/svg%3E"); } /* lucide corner-left-up */
 i.fa-arrows-alt-h { --holt-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' %3E%3Cpath d='m18 8 4 4-4 4' /%3E%3Cpath d='M2 12h20' /%3E%3Cpath d='m6 8-4 4 4 4' /%3E%3C/svg%3E"); } /* lucide move-horizontal */
+i.fa-magic { --holt-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' %3E%3Cpath d='m21.64 3.64-1.28-1.28a1.21 1.21 0 0 0-1.72 0L2.36 18.64a1.21 1.21 0 0 0 0 1.72l1.28 1.28a1.2 1.2 0 0 0 1.72 0L21.64 5.36a1.2 1.2 0 0 0 0-1.72' /%3E%3Cpath d='m14 7 3 3' /%3E%3Cpath d='M5 6v4' /%3E%3Cpath d='M19 14v4' /%3E%3Cpath d='M10 2v2' /%3E%3Cpath d='M7 8H3' /%3E%3Cpath d='M21 16h-4' /%3E%3Cpath d='M11 3H9' /%3E%3C/svg%3E"); } /* lucide wand-sparkles */
 i.fa-file-archive { --holt-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' %3E%3Cpath d='M13.659 22H18a2 2 0 0 0 2-2V8a2.4 2.4 0 0 0-.706-1.706l-3.588-3.588A2.4 2.4 0 0 0 14 2H6a2 2 0 0 0-2 2v11.5' /%3E%3Cpath d='M14 2v5a1 1 0 0 0 1 1h5' /%3E%3Cpath d='M8 12v-1' /%3E%3Cpath d='M8 18v-2' /%3E%3Cpath d='M8 7V6' /%3E%3Ccircle cx='8' cy='20' r='2' /%3E%3C/svg%3E"); } /* lucide file-archive */
 i.fa-file-pdf { --holt-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' %3E%3Cpath d='M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z' /%3E%3Cpath d='M14 2v5a1 1 0 0 0 1 1h5' /%3E%3Cpath d='M10 9H8' /%3E%3Cpath d='M16 13H8' /%3E%3Cpath d='M16 17H8' /%3E%3C/svg%3E"); } /* lucide file-text */
 i.fa-file-video { --holt-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' %3E%3Cpath d='M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z' /%3E%3Cpath d='M14 2v5a1 1 0 0 0 1 1h5' /%3E%3Cpath d='M15.033 13.44a.647.647 0 0 1 0 1.12l-4.065 2.352a.645.645 0 0 1-.968-.56v-4.704a.645.645 0 0 1 .967-.56z' /%3E%3C/svg%3E"); } /* lucide file-video */
@@ -1664,6 +1668,50 @@ a:hover span.page-match {
 
 #column-main a.pageindex-heading {
     color: var(--holt-text-2);
+}
+
+/* Edit pages. Until the rich text editor has settled on rich or Markdown mode, a spinner stands in
+ * for the Markdown editor, its buttons and its side panels, so they don't flash up before rich mode
+ * replaces them. holt.js settles at once when the editor is off or Markdown is preferred. If the
+ * editor never loads, the Markdown editor appears after eight seconds anyway. */
+body:has(#content_editor):not(.holt-editor-settled) :is(#editor_block > .cm-editor, .btn-editor, #preview_btn, #split_btn, #column-extra) {
+    visibility: hidden;
+    animation: holt-reveal 0s 8s forwards;
+}
+
+/* Centred beside the sidebar, where rich mode's reading column appears, rather than in the editor's
+ * column, which still leaves room for the hidden side panels. */
+body:has(#content_editor):not(.holt-editor-settled) #content-wrapper::before {
+    content: "";
+    position: absolute;
+    z-index: 1;
+    top: 12rem;
+    left: 50%;
+    width: 2.4rem;
+    height: 2.4rem;
+    margin-left: -1.2rem;
+    border: 2px solid var(--holt-divider);
+    border-top-color: var(--holt-text-2);
+    border-radius: 50%;
+    animation: holt-spin 0.8s linear infinite, holt-unreveal 0s 8s forwards;
+}
+
+@keyframes holt-reveal {
+    to {
+        visibility: visible;
+    }
+}
+
+@keyframes holt-unreveal {
+    to {
+        visibility: hidden;
+    }
+}
+
+@keyframes holt-spin {
+    to {
+        transform: rotate(360deg);
+    }
 }
 
 /* Search, from holt.js. The navbar has a button that looks like the old box, and search as you type

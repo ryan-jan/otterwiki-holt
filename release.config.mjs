@@ -1,5 +1,6 @@
-// Releases are cut from Conventional Commits on main. Each release attaches holt.css and holt.js
-// for self-hosting, and updates the version in the README's install snippets.
+// Releases are cut from Conventional Commits on main. Each release attaches holt.css, holt.js and
+// the rich text editor's files for self-hosting, and updates the version in the README's install
+// snippets.
 export default {
   branches: ['main'],
   tagFormat: 'v${version}',
@@ -34,6 +35,10 @@ export default {
         assets: [
           { path: 'holt.css', label: 'holt.css' },
           { path: 'holt.js', label: 'holt.js' },
+          { path: 'holt-editor.js', label: 'holt-editor.js' },
+          { path: 'holt-editor.css', label: 'holt-editor.css' },
+          { path: 'holt-emoji.json', label: 'holt-emoji.json' },
+          { path: 'holt-editor.js.LEGAL.txt', label: 'holt-editor.js.LEGAL.txt' },
         ],
       },
     ],

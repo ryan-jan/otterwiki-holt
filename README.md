@@ -30,6 +30,9 @@ A holt is an otter's den.
   the sidebar, which closes on phones once you pick a section.
 - **Full width.** Each page's menu has a Full width switch, as in Notion, remembered per page in
   each browser.
+- **Rich text editing.** The editor gains a rich text mode, built on
+  [Milkdown](https://milkdown.dev), where the page looks as it does when it's read. See
+  [Rich text editor](#rich-text-editor).
 - **Icons.** Every Font Awesome icon Otter Wiki draws is replaced with its
   [Lucide](https://lucide.dev) outline equivalent.
 - **Otter Wiki's own pages.** History, changelog, blame, diffs, search results, the A–Z index and
@@ -54,7 +57,8 @@ Holt needs Otter Wiki 2.27.0. It may work on other versions, but see
 
 Holt is two files, `holt.css` and `holt.js`. Otter Wiki's `HTML_EXTRA_HEAD` and `HTML_EXTRA_BODY`
 settings add HTML to every page, and Holt uses them to load its files. The icons are embedded in
-`holt.css`, so either way of installing gets everything.
+`holt.css`. On edit pages `holt.js` also loads the rich text editor, `holt-editor.js`,
+`holt-editor.css` and `holt-emoji.json`, from wherever `holt.js` came from.
 
 ### From jsDelivr
 
@@ -72,13 +76,13 @@ services:
 
 To upgrade, change the version in both URLs. A new URL means browsers can't show a stale copy.
 
-Each viewer's browser fetches the two files from jsDelivr. If jsDelivr can't be reached, the wiki
+Each viewer's browser fetches the files from jsDelivr. If jsDelivr can't be reached, the wiki
 still works, but with Otter Wiki's default look.
 
 ### Self-hosted
 
-Download `holt.css` and `holt.js` from a [release](https://github.com/ryan-jan/otterwiki-holt/releases)
-into a folder mounted at `/app/otterwiki/static/custom`, which is where Otter Wiki keeps its
+Download `holt.css`, `holt.js`, `holt-editor.js`, `holt-editor.css` and `holt-emoji.json` from a
+[release](https://github.com/ryan-jan/otterwiki-holt/releases) into a folder mounted at `/app/otterwiki/static/custom`, which is where Otter Wiki keeps its
 `custom.css` and `custom.js`. Then point the two settings at them:
 
 ```yaml
@@ -94,6 +98,42 @@ services:
 
 Otter Wiki ignores the `?v=`, but browsers treat it as part of the address. Change it when you
 upgrade, so they fetch the new files. Nothing in Holt contacts any other server.
+
+## Rich text editor
+
+The editor opens in rich text mode, where the page sits in its reading column with Holt's
+typography, so it looks as it will once saved. Like Notion:
+
+- Type `/` for headings, lists, quotes, tables, code, emoji, wiki links and Otter Wiki's own blocks.
+- Hover over a block for its handle. Click `+` to add a block below, or Option-click (Alt-click
+  elsewhere) to add one above. Drag `⋮⋮` to move the block, or click it to turn the block into
+  another kind, duplicate it or delete it.
+- Type `[[` to link to a page, picked from the wiki's pages as you type.
+- Select text for bold, italic, links, highlight and the other formatting.
+- On wide screens the floating outline lists the page's headings as you edit them.
+
+The `</>` button beside Save switches to Otter Wiki's Markdown editor, and the wand switches back.
+Holt remembers if you prefer Markdown, in each browser. The preview buttons and Otter Wiki's
+attachment and wiki link panels only appear in the Markdown editor, since rich mode shows the page
+as it will look and has its own ways to add links and images.
+
+The page's Markdown is always the master copy. The rich editor writes its changes back into Otter
+Wiki's editor, so saving, drafts, the preview and the attachment panel work as before. A page only
+opens in rich mode if Otter Wiki renders it exactly the same after a round trip through the rich
+editor, so it can't change a page you didn't edit. Anything else opens in the Markdown editor, and
+the wand explains why. Otter Wiki syntax the rich editor doesn't understand, like info boxes,
+alerts and maths, shows as Otter Wiki renders it, and its source opens in place to edit.
+
+Once you change something, the rich editor writes out the whole page in its own style. The page
+renders the same, but some Markdown may be laid out differently, such as padded table columns, so
+the diff can include lines you didn't touch.
+
+The editor is about 1.2 MB, but only edit pages load it. To keep only the Markdown editor, add
+`data-editor="off"` to Holt's script tag:
+
+```yaml
+      HTML_EXTRA_BODY: '<script src="https://cdn.jsdelivr.net/gh/ryan-jan/otterwiki-holt@v0.3.0/holt.js" data-editor="off"></script>'
+```
 
 ## Colours
 
@@ -175,6 +215,8 @@ releases. Some of it depends on Otter Wiki's HTML, and a release could break tho
   layout.
 - A new Font Awesome icon in an Otter Wiki release keeps its old look until it's added to the map
   in `holt.css`.
+- The rich text editor hooks into Otter Wiki's CodeMirror editor and its toolbar buttons. If those
+  change, the wand may not appear, and the Markdown editor carries on as normal.
 
 Please open an issue if something breaks on a newer Otter Wiki.
 
@@ -185,7 +227,23 @@ The Lucide icons are SVGs embedded in `holt.css`, each followed by a comment nam
 version set in the script and rewrites them. To change an icon, change its name in the comment and
 run the script.
 
+## Building the editor
+
+The rich text editor's source is in `editor/`, an npm project that bundles Milkdown with esbuild.
+Its built files are committed at the top of the repository, because jsDelivr serves them from
+there. After changing the source, run:
+
+```sh
+cd editor
+npm ci
+npm test
+npm run build
+```
+
+Then commit the source and the rebuilt `holt-editor.*` and `holt-emoji.json` together.
+
 ## Licence
 
 MIT. See [LICENSE](LICENSE). The embedded [Lucide](https://lucide.dev) icons are under the ISC
-licence. See [LICENSE-lucide](LICENSE-lucide).
+licence. See [LICENSE-lucide](LICENSE-lucide). The rich text editor bundles Milkdown, ProseMirror
+and other open source libraries, whose licences are listed in `holt-editor.js.LEGAL.txt`.

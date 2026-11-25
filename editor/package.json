@@ -1,0 +1,20 @@
+{
+  "name": "holt-editor",
+  "scripts": {
+    "test": "node --test test/*.test.mjs",
+    "build": "node build.mjs"
+  },
+  "license": "MIT",
+  "type": "module",
+  "dependencies": {
+    "@milkdown/crepe": "7.23.0",
+    "@milkdown/kit": "7.23.0",
+    "emoji-picker-element": "1.29.1",
+    "emoji-picker-element-data": "1.8.0"
+  },
+  "devDependencies": {
+    "esbuild": "0.28.2"
+  },
+  "private": true,
+  "description": "Holt's rich text editor for An Otter Wiki, built on Milkdown"
+}

@@ -557,3 +557,35 @@
     true,
   );
 })();
+
+// Loads Holt's rich text editor on edit pages, from wherever this script came from, so jsDelivr and
+// self-hosted installs both get it. It's large, so other pages never fetch it. data-editor="off"
+// on Holt's script tag leaves Otter Wiki's Markdown editor on its own.
+(() => {
+  if (!document.getElementById('content_editor')) return;
+  // holt.css hides the Markdown editor behind a spinner until this class, so it doesn't flash up
+  // when rich mode is about to replace it.
+  const settle = () => document.body.classList.add('holt-editor-settled');
+  const script = document.currentScript;
+  let markdown = false;
+  try {
+    markdown = localStorage.getItem('holt-rich-editor') === 'markdown';
+  } catch {
+    // Without storage, rich mode is the default.
+  }
+  if (markdown) settle();
+  if (!script?.src || script.dataset.editor === 'off') {
+    settle();
+    return;
+  }
+  const { search } = new URL(script.src);
+  const url = (file) => new URL(`${file}${search}`, script.src).href;
+  const css = document.createElement('link');
+  css.rel = 'stylesheet';
+  css.href = url('holt-editor.css');
+  document.head.append(css);
+  const editor = document.createElement('script');
+  editor.src = url('holt-editor.js');
+  editor.addEventListener('error', settle);
+  document.body.append(editor);
+})();
