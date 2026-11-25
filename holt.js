@@ -41,6 +41,48 @@
   menu.append(...tools);
   dropdown.append(toggle, menu);
   actions.append(dropdown);
+
+  // Notion's "Full width" switch. Otter Wiki has nowhere to keep per-page display settings, so each
+  // browser remembers it per page.
+  const page = tools.find((item) => item.getAttribute('href')?.endsWith('/attachments'));
+  const key = `holt-full-width:${page.getAttribute('href').replace(/\/attachments$/, '')}`;
+  const stored = () => {
+    try {
+      return localStorage.getItem(key) === '1';
+    } catch {
+      return false;
+    }
+  };
+
+  const divider = document.createElement('div');
+  divider.className = 'dropdown-divider holt-full-width-divider';
+  const fullWidth = document.createElement('button');
+  fullWidth.type = 'button';
+  fullWidth.className = 'dropdown-item-with-icon holt-full-width-toggle';
+  fullWidth.setAttribute('role', 'menuitemcheckbox');
+  fullWidth.innerHTML =
+    '<span class="dropdown-icon"><i class="fas fa-arrows-alt-h"></i></span>Full width' +
+    '<span class="holt-switch" aria-hidden="true"></span>';
+  menu.append(divider, fullWidth);
+
+  const apply = (on) => {
+    document.body.classList.toggle('holt-full-width', on);
+    fullWidth.setAttribute('aria-checked', String(on));
+  };
+  apply(stored());
+
+  fullWidth.addEventListener('click', (event) => {
+    // Keep the menu open so the switch can be seen to change, as in Notion.
+    event.stopPropagation();
+    const on = !document.body.classList.contains('holt-full-width');
+    apply(on);
+    try {
+      if (on) localStorage.setItem(key, '1');
+      else localStorage.removeItem(key);
+    } catch {
+      // Without storage it still applies until the page is left.
+    }
+  });
 })();
 
 // Turns the right-hand "On this page" column into Notion's floating outline: a short line per

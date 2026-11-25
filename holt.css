@@ -563,6 +563,62 @@ input[type="radio"] {
     padding: 0 var(--holt-gutter);
 }
 
+/* Full width, from the page menu. The column fills the page with Notion's 96px margins, which also
+ * keep text clear of the floating outline. Phones are already full width, so the switch goes. */
+@media (min-width: 769px) {
+    body.holt-full-width #column-main > .content {
+        max-width: none;
+        padding: 0 9.6rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .holt-full-width-divider,
+    .holt-full-width-toggle {
+        display: none !important;
+    }
+}
+
+.holt-full-width-toggle {
+    width: 100%;
+    border: 0;
+    background: transparent;
+    text-align: left;
+    cursor: pointer;
+}
+
+.holt-switch {
+    position: relative;
+    flex: none;
+    width: 2.8rem;
+    height: 1.6rem;
+    margin-left: auto;
+    border-radius: 0.8rem;
+    background: var(--holt-active);
+    transition: background 0.15s ease;
+}
+
+.holt-switch::after {
+    content: "";
+    position: absolute;
+    top: 0.2rem;
+    left: 0.2rem;
+    width: 1.2rem;
+    height: 1.2rem;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 1px 2px rgba(15, 15, 15, 0.2);
+    transition: transform 0.15s ease;
+}
+
+.holt-full-width-toggle[aria-checked="true"] .holt-switch {
+    background: var(--holt-accent);
+}
+
+.holt-full-width-toggle[aria-checked="true"] .holt-switch::after {
+    transform: translateX(1.2rem);
+}
+
 .page {
     font-size: 1.6rem;
     line-height: 1.6;
@@ -1037,6 +1093,7 @@ i.fa-spinner,
 i.fa-arrows-alt,
 i.fa-expand-arrows-alt,
 i.fa-level-up-alt,
+i.fa-arrows-alt-h,
 i.fa-file-archive,
 i.fa-file-pdf,
 i.fa-file-video {
@@ -1138,6 +1195,7 @@ i.fa-spinner::before,
 i.fa-arrows-alt::before,
 i.fa-expand-arrows-alt::before,
 i.fa-level-up-alt::before,
+i.fa-arrows-alt-h::before,
 i.fa-file-archive::before,
 i.fa-file-pdf::before,
 i.fa-file-video::before {
@@ -1233,6 +1291,7 @@ i.fa-spinner { --holt-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.
 i.fa-arrows-alt { --holt-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' %3E%3Cpath d='M12 2v20' /%3E%3Cpath d='m15 19-3 3-3-3' /%3E%3Cpath d='m19 9 3 3-3 3' /%3E%3Cpath d='M2 12h20' /%3E%3Cpath d='m5 9-3 3 3 3' /%3E%3Cpath d='m9 5 3-3 3 3' /%3E%3C/svg%3E"); } /* lucide move */
 i.fa-expand-arrows-alt { --holt-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' %3E%3Cpath d='m15 15 6 6' /%3E%3Cpath d='m15 9 6-6' /%3E%3Cpath d='M21 16v5h-5' /%3E%3Cpath d='M21 8V3h-5' /%3E%3Cpath d='M3 16v5h5' /%3E%3Cpath d='m3 21 6-6' /%3E%3Cpath d='M3 8V3h5' /%3E%3Cpath d='M9 9 3 3' /%3E%3C/svg%3E"); } /* lucide expand */
 i.fa-level-up-alt { --holt-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' %3E%3Cpath d='M14 9 9 4 4 9' /%3E%3Cpath d='M20 20h-7a4 4 0 0 1-4-4V4' /%3E%3C/svg%3E"); } /* lucide corner-left-up */
+i.fa-arrows-alt-h { --holt-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' %3E%3Cpath d='m18 8 4 4-4 4' /%3E%3Cpath d='M2 12h20' /%3E%3Cpath d='m6 8-4 4 4 4' /%3E%3C/svg%3E"); } /* lucide move-horizontal */
 i.fa-file-archive { --holt-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' %3E%3Cpath d='M13.659 22H18a2 2 0 0 0 2-2V8a2.4 2.4 0 0 0-.706-1.706l-3.588-3.588A2.4 2.4 0 0 0 14 2H6a2 2 0 0 0-2 2v11.5' /%3E%3Cpath d='M14 2v5a1 1 0 0 0 1 1h5' /%3E%3Cpath d='M8 12v-1' /%3E%3Cpath d='M8 18v-2' /%3E%3Cpath d='M8 7V6' /%3E%3Ccircle cx='8' cy='20' r='2' /%3E%3C/svg%3E"); } /* lucide file-archive */
 i.fa-file-pdf { --holt-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' %3E%3Cpath d='M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z' /%3E%3Cpath d='M14 2v5a1 1 0 0 0 1 1h5' /%3E%3Cpath d='M10 9H8' /%3E%3Cpath d='M16 13H8' /%3E%3Cpath d='M16 17H8' /%3E%3C/svg%3E"); } /* lucide file-text */
 i.fa-file-video { --holt-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' %3E%3Cpath d='M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z' /%3E%3Cpath d='M14 2v5a1 1 0 0 0 1 1h5' /%3E%3Cpath d='M15.033 13.44a.647.647 0 0 1 0 1.12l-4.065 2.352a.645.645 0 0 1-.968-.56v-4.704a.645.645 0 0 1 .967-.56z' /%3E%3C/svg%3E"); } /* lucide file-video */
