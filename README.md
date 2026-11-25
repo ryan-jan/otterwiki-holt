@@ -55,8 +55,8 @@ services:
   otterwiki:
     image: redimp/otterwiki:2.27.0
     environment:
-      HTML_EXTRA_HEAD: '<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/ryan-jan/otterwiki-holt@v0.4.0/holt.css">'
-      HTML_EXTRA_BODY: '<script src="https://cdn.jsdelivr.net/gh/ryan-jan/otterwiki-holt@v0.4.0/holt.js"></script>'
+      HTML_EXTRA_HEAD: '<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/ryan-jan/otterwiki-holt@v0.5.0/holt.css">'
+      HTML_EXTRA_BODY: '<script src="https://cdn.jsdelivr.net/gh/ryan-jan/otterwiki-holt@v0.5.0/holt.js"></script>'
 ```
 
 To upgrade, change the version in both URLs. Each release has its own URL, so browsers can't show
@@ -79,8 +79,8 @@ services:
     volumes:
       - ./custom:/app/otterwiki/static/custom:ro
     environment:
-      HTML_EXTRA_HEAD: '<link rel="stylesheet" href="/static/custom/holt.css?v=0.4.0">'
-      HTML_EXTRA_BODY: '<script src="/static/custom/holt.js?v=0.4.0"></script>'
+      HTML_EXTRA_HEAD: '<link rel="stylesheet" href="/static/custom/holt.css?v=0.5.0">'
+      HTML_EXTRA_BODY: '<script src="/static/custom/holt.js?v=0.5.0"></script>'
 ```
 
 Otter Wiki ignores the `?v=`, but browsers treat it as part of the address. Change it when you
