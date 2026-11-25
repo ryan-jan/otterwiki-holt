@@ -87,7 +87,7 @@
     --lm-navbar-bg-color: var(--holt-bg);
     --lm-navbar-border-color: transparent;
     --lm-sidebar-bg-color: var(--holt-sidebar);
-    --lm-sidebar-border-color: transparent;
+    --lm-sidebar-border-color: var(--holt-divider);
     --lm-card-bg-color: var(--holt-bg);
 
     --button-border-radius: var(--holt-radius);
@@ -172,7 +172,7 @@
     --dm-navbar-bg-color: var(--holt-bg);
     --dm-navbar-border-color: transparent;
     --dm-sidebar-bg-color: var(--holt-sidebar);
-    --dm-sidebar-border-color: transparent;
+    --dm-sidebar-border-color: var(--holt-divider);
     --dm-card-bg-color: #252525;
 
     --dm-button-text-color: var(--holt-text);
@@ -224,6 +224,53 @@ input[type="radio"] {
     background: var(--holt-bg);
     border-bottom: 0;
     box-shadow: none;
+}
+
+/* While the sidebar is open, the navbar's left end takes the sidebar's colour and hairline, so the
+ * sidebar reads as one full-height column as in Notion. The navbar is a stacking context, so
+ * z-index -1 paints this above its background but below its contents. It slides out with the
+ * sidebar, which moves by the viewport's width. On phones the sidebar covers the navbar instead. */
+.page-wrapper.with-sidebar > .navbar::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: var(--sidebar-width);
+    z-index: -1;
+    background: var(--holt-sidebar);
+    box-shadow: inset -1px 0 0 var(--holt-divider);
+}
+
+/* Otter Wiki hard-codes the sidebar's width at these breakpoints and ignores Halfmoon's variable. */
+:root {
+    --sidebar-width: 20rem;
+}
+
+@media (min-width: 1201px) {
+    :root {
+        --sidebar-width: 25rem;
+    }
+}
+
+@media (min-width: 1900px) {
+    :root {
+        --sidebar-width: 35rem;
+    }
+}
+
+.page-wrapper.with-sidebar[data-sidebar-hidden] > .navbar::before {
+    left: -100%;
+}
+
+.page-wrapper.with-transitions.with-sidebar > .navbar::before {
+    transition: left 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+@media (max-width: 768px) {
+    .page-wrapper.with-sidebar > .navbar::before {
+        display: none;
+    }
 }
 
 .navbar-brand {
@@ -295,8 +342,10 @@ input[type="radio"] {
 
 .sidebar {
     background: var(--holt-sidebar);
-    border-right: 0;
-    box-shadow: inset -1px 0 0 var(--holt-divider);
+    /* A border rather than an inset shadow, which would be drawn inside the scrollbar and miss the
+     * navbar's hairline above it. */
+    border-right: 1px solid var(--holt-divider);
+    box-shadow: none;
     font-size: 1.4rem;
 }
 
