@@ -1,6 +1,9 @@
 // Holt's block handle, in place of Crepe's, with Notion's behaviour. The + adds a block below, or
 // above with Option or Alt, and opens the / menu. The ⋮⋮ drags, and a click opens a menu to
 // turn the block into another kind, duplicate it or delete it. Each has Notion's tooltip.
+//
+// A touch screen has no hover, and no room beside the text for both buttons. There the ⋮⋮ alone
+// shows beside the block you tap into, and its menu also adds and moves blocks.
 
 import { commandsCtx, editorViewCtx } from '@milkdown/kit/core';
 import { block, BlockProvider } from '@milkdown/kit/plugin/block';
@@ -15,16 +18,19 @@ import {
 } from '@milkdown/kit/preset/commonmark';
 import { NodeSelection, TextSelection } from '@milkdown/kit/prose/state';
 
+import { currentBlock, move } from './block-keys.js';
 import * as icons from './icons.js';
 
 const mac = /Mac|iPhone|iPad/.test(navigator.platform);
 const ALT = mac ? 'Option' : 'Alt';
 const DUPLICATE_KEY = mac ? '⌘D' : 'Ctrl+D';
+const touch = () => window.matchMedia('(hover: none)').matches;
 
 let tooltip = null;
 
 function showTooltip(anchor, lines) {
   hideTooltip();
+  if (touch()) return;
   tooltip = document.createElement('div');
   tooltip.className = 'holt-block-tooltip';
   for (const [key, rest] of lines) {
@@ -120,10 +126,10 @@ class HoltBlockHandle {
     this.#provider = new BlockProvider({
       ctx,
       content,
-      getOffset: () => 16,
+      getOffset: () => (touch() ? 2 : 16),
       // As Crepe places it: level with the first line of a tall block, centred on a short one.
       getPlacement: ({ active, blockDom }) => {
-        if (active.node.type.name === 'heading') return 'left';
+        if (active.node.type.name === 'heading' || touch()) return 'left';
         let descendants = 0;
         active.node.descendants((node) => {
           descendants += node.childCount;
@@ -138,6 +144,18 @@ class HoltBlockHandle {
     });
     this.update();
 
+    // A finger moving over the page would show the handle for whatever is under it, as a mouse
+    // does, so only a mouse drives the block plugin's hover.
+    requestAnimationFrame(() => {
+      ctx.get(editorViewCtx).dom.parentElement?.addEventListener(
+        'pointermove',
+        (event) => {
+          if (event.pointerType !== 'mouse') event.stopPropagation();
+        },
+        true,
+      );
+    });
+
     // The block plugin hides the handle on any keydown, so holding Option or Alt to add above would
     // take the + away from under the pointer. A modifier key on its own does nothing in the editor.
     requestAnimationFrame(() => {
@@ -151,7 +169,33 @@ class HoltBlockHandle {
     });
   }
 
-  update = () => this.#provider.update();
+  update = (view, prevState) => {
+    this.#provider.update();
+    if (touch() && view && prevState) this.#followCursor(view, prevState);
+  };
+
+  #moved = false;
+
+  // On a touch screen the handle shows beside the block with the cursor, once the cursor moves
+  // there, and hides while you type.
+  #followCursor(view, prevState) {
+    // Moving a block from the menu keeps the handle beside it, ready to move it again.
+    const moved = this.#moved;
+    this.#moved = false;
+    if (!moved && !view.state.doc.eq(prevState.doc)) {
+      this.#provider.hide();
+      return;
+    }
+    if (!moved && (view.state.selection.eq(prevState.selection) || !view.hasFocus())) return;
+    const block = currentBlock(view.state);
+    const el = block && view.nodeDOM(block.pos);
+    if (!(el instanceof HTMLElement)) {
+      this.#provider.hide();
+      return;
+    }
+    this.#target = { node: block.node, $pos: view.state.doc.resolve(block.pos), el };
+    this.#provider.show(this.#target);
+  }
 
   destroy = () => {
     this.#closeMenu();
@@ -161,13 +205,16 @@ class HoltBlockHandle {
   };
 
   // Like Notion, the new block starts with a / so the block menu opens on it.
-  #add(above) {
-    const active = this.#provider.active ?? this.#target;
+  #add(above, active = this.#provider.active ?? this.#target) {
     if (!active) return;
     const view = this.#ctx.get(editorViewCtx);
     const pos = above ? active.$pos.pos : active.$pos.pos + active.node.nodeSize;
-    const paragraph = paragraphSchema.type(this.#ctx).create(null, view.state.schema.text('/'));
-    let tr = view.state.tr.insert(pos, paragraph);
+    // Beside a list item, the new block is another item in the list. Crepe has no / menu in lists,
+    // so it starts empty.
+    const listItem = active.node.type.name === 'list_item';
+    const paragraph = paragraphSchema.type(this.#ctx).create(null, listItem ? null : view.state.schema.text('/'));
+    const block = listItem ? active.node.type.create(null, paragraph) : paragraph;
+    let tr = view.state.tr.insert(pos, block);
     tr = tr.setSelection(TextSelection.create(tr.doc, pos + 2));
     view.focus();
     view.dispatch(tr.scrollIntoView());
@@ -222,10 +269,21 @@ class HoltBlockHandle {
       }
       menu.append(Object.assign(document.createElement('div'), { className: 'holt-block-menu-divider' }));
     }
+    if (touch()) {
+      button(icons.plus, 'Add below', () => this.#add(false, active));
+      button(icons.plus, 'Add above', () => this.#add(true, active));
+      const moveBlock = (up) => () => {
+        view.dispatch(view.state.tr.setSelection(TextSelection.near(view.state.doc.resolve(pos + 1))));
+        this.#moved = true;
+        move(up)(view.state, view.dispatch);
+      };
+      button(icons.arrowUp, 'Move up', moveBlock(true));
+      button(icons.arrowDown, 'Move down', moveBlock(false));
+    }
     button(icons.copy, 'Duplicate', () => {
       const tr = view.state.tr.insert(pos + node.nodeSize, node);
       view.dispatch(tr.setSelection(NodeSelection.create(tr.doc, pos + node.nodeSize)));
-    }, false, DUPLICATE_KEY);
+    }, false, touch() ? '' : DUPLICATE_KEY);
     button(icons.remove, 'Delete', () => view.dispatch(view.state.tr.delete(pos, pos + node.nodeSize)));
 
     document.body.append(menu);

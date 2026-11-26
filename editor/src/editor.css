@@ -470,6 +470,19 @@
   min-width: 0;
 }
 
+/* On a touch screen only the ⋮⋮ shows, narrow enough for the phone layout's gutter. Its menu adds
+ * blocks instead of the +. */
+@media (hover: none) {
+  #holt-rich-editor .milkdown-block-handle .operation-item:first-child {
+    display: none;
+  }
+
+  #holt-rich-editor .milkdown-block-handle .operation-item {
+    width: 2.8rem;
+    height: 3.6rem;
+  }
+}
+
 /* Dialogs and popovers */
 .otter-dialog {
   border: 0;

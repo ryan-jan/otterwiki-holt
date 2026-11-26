@@ -8,6 +8,8 @@ it looks as it will once saved. It works much like Notion's editor.
 - Hover over a block for its handle. Click `+` to add a block below, or Option-click (Alt-click
   elsewhere) to add one above. Drag `⋮⋮` to move the block, or click it to turn the block into
   another kind, duplicate it or delete it.
+- On a touch screen, tap into a block for its `⋮⋮`. Its menu also adds a block above or below and
+  moves the block up or down.
 - Press ⌘⇧↑ or ⌘⇧↓ (Ctrl+Shift+↑ or ↓ elsewhere) to move the block you're in, and ⌘D (Ctrl+D) to
   duplicate it. In a list, these move or duplicate the list item.
 - Type `[[` to link to a page, picked from the wiki's pages as you type.

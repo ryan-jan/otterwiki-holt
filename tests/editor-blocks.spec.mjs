@@ -1,4 +1,4 @@
-import { END, expect, markdown, markdownWhen, openRichEditor, placeCursor, test } from './support/test.mjs';
+import { END, expect, markdown, markdownWhen, openRichEditor, PHONE, placeCursor, test } from './support/test.mjs';
 
 const prose = (page) => page.locator('.ProseMirror');
 const slashMenu = (page) => page.locator('.milkdown-slash-menu');
@@ -147,6 +147,41 @@ test.describe('@editor-blocks', () => {
     await page.keyboard.press('Escape');
     await expect(page.locator('.holt-page-link')).toHaveCount(0);
     await expect(prose(page)).toContainText('[[Outl');
+  });
+
+  // A touch screen has no hover, so the handle follows the cursor instead.
+  test.describe('on a touch screen', () => {
+    test.use({ viewport: PHONE, hasTouch: true, isMobile: true });
+
+    test('shows the ⋮⋮ beside the block you tap, inside the screen, until you type', async ({ page }) => {
+      await openRichEditor(page, 'Roundtrip/Basics');
+      const block = page.locator('.milkdown-block-handle');
+      await prose(page).locator('> h2', { hasText: 'Lists' }).tap();
+      await expect(block).toHaveAttribute('data-show', 'true');
+      await expect(handle(page, 0)).toBeHidden();
+      const box = await handle(page, 1).boundingBox();
+      expect(box.x).toBeGreaterThanOrEqual(0);
+      await page.keyboard.type('x');
+      await expect(block).toHaveAttribute('data-show', 'false');
+    });
+
+    test('adds and moves blocks from the ⋮⋮ menu', async ({ page }) => {
+      await openRichEditor(page, 'Roundtrip/Basics');
+      await prose(page).locator('li', { hasText: 'Three' }).tap();
+      await handle(page, 1).tap();
+      await page.locator('.holt-block-menu-item', { hasText: 'Move up' }).tap();
+      await markdownWhen(page, (md) => md.indexOf('Three') < md.indexOf('Two'));
+      await expect(page.locator('.milkdown-block-handle')).toHaveAttribute('data-show', 'true');
+
+      await handle(page, 1).tap();
+      await page.locator('.holt-block-menu-item', { hasText: 'Add below' }).tap();
+      await markdownWhen(page, (md) => /Three\n\d\. *\n/.test(md));
+
+      await prose(page).locator('> p').first().tap();
+      await handle(page, 1).tap();
+      await page.locator('.holt-block-menu-item', { hasText: 'Add below' }).tap();
+      await expect(slashMenu(page)).toHaveAttribute('data-show', 'true');
+    });
   });
 
   test.describe('Otter Wiki blocks', () => {

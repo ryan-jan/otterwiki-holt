@@ -5,7 +5,7 @@ import { keymap } from '@milkdown/kit/prose/keymap';
 import { NodeSelection, TextSelection } from '@milkdown/kit/prose/state';
 import { $prose } from '@milkdown/kit/utils';
 
-function currentBlock(state) {
+export function currentBlock(state) {
   const { selection } = state;
   if (selection instanceof NodeSelection && selection.node.isBlock) {
     return { pos: selection.from, node: selection.node };
@@ -24,7 +24,7 @@ function follow(tr, selection, oldStart, start) {
   return tr.setSelection(TextSelection.create(tr.doc, shift(selection.anchor), shift(selection.head)));
 }
 
-const move = (up) => (state, dispatch) => {
+export const move = (up) => (state, dispatch) => {
   const block = currentBlock(state);
   if (!block) return false;
   const $pos = state.doc.resolve(block.pos);
