@@ -35,8 +35,9 @@ npm run test:integration
 ```
 
 `OTTERWIKI_VERSION` picks the Otter Wiki release to test against, and defaults to 2.27.0. Each
-suite is tagged by the feature it covers, so `-g` runs one of them. The tags are `@theme`, `@icons`,
-`@page-bar`, `@search`, `@outline`, `@pages`, `@editor`, `@editor-blocks` and `@editor-roundtrip`.
+suite is tagged by the feature it covers, so `-g` runs one of them. The tags are `@theme`,
+`@icons`, `@page-bar`, `@search`, `@outline`, `@sidebar`, `@pages`, `@editor`, `@editor-blocks` and
+`@editor-roundtrip`.
 
 ```sh
 OTTERWIKI_VERSION=2.26.0 npm run test:integration -- -g @editor-roundtrip

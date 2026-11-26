@@ -89,6 +89,12 @@ export async function openRichEditor(page, path) {
   await expect(page.locator('body')).toHaveClass(/holt-rich-mode/);
 }
 
+// Clicks into the rich editor and waits for the cursor to land, so a shortcut pressed next acts there.
+export async function placeCursor(locator) {
+  await locator.click();
+  await expect.poll(() => locator.evaluate((el) => el.contains(getSelection().anchorNode))).toBe(true);
+}
+
 // The Markdown in Otter Wiki's editor, once the rich editor has written its changes back.
 export const markdown = (page) => page.evaluate(() => window.cm_editor.state.doc.toString());
 

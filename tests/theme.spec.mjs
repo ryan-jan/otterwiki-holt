@@ -59,6 +59,24 @@ test.describe('@theme', () => {
     expect(await luminance(page, '.page h1', 'color')).toBeGreaterThan(0.7);
   });
 
+  test('colours toasts by meaning, whatever the accent', async ({ page }) => {
+    await page.goto('/Home');
+    const types = { primary: 'blue', success: 'green', secondary: 'yellow', danger: 'red' };
+    for (const [type, colour] of Object.entries(types)) {
+      const [toast, expected] = await page.evaluate(
+        async ([type, colour]) => {
+          window.halfmoon.initStickyAlert({ content: type, alertType: `alert-${type}`, fillType: 'filled' });
+          const alert = document.querySelector(`.sticky-alerts .alert-${type}`);
+          const probe = document.body.appendChild(document.createElement('div'));
+          probe.style.background = `var(--holt-${colour}-bg)`;
+          return [getComputedStyle(alert).backgroundColor, getComputedStyle(probe).backgroundColor];
+        },
+        [type, colour],
+      );
+      expect(toast, type).toBe(expected);
+    }
+  });
+
   test.describe('on a phone', () => {
     test.use({ viewport: PHONE });
 
