@@ -192,14 +192,6 @@
     link.addEventListener('click', () => {
       pinned = heading;
       highlight();
-      // On phones the sidebar covers the page, so close it once a section is picked, like Notion.
-      const wrapper = document.getElementById('page-wrapper');
-      if (
-        window.matchMedia('(max-width: 768px)').matches &&
-        wrapper.getAttribute('data-sidebar-hidden') !== 'hidden'
-      ) {
-        window.halfmoon.toggleSidebar();
-      }
     });
   }
 
@@ -213,6 +205,169 @@
 
   content.addEventListener('scroll', highlight, { passive: true });
   highlight();
+})();
+
+// Highlights the shortcut at the top of the sidebar for the page being viewed, as the page index
+// does for pages. Otter Wiki marks neither. The home page is served at / and at /Home.
+(() => {
+  const path = (pathname) => (pathname.toLowerCase() === '/home' ? '/' : pathname);
+  const here = path(window.location.pathname);
+  for (const link of document.querySelectorAll('.sidebar-menu > a.sidebar-link')) {
+    if (path(link.pathname) === here) link.setAttribute('aria-current', 'page');
+  }
+})();
+
+// Opens or closes a folder in the page index from anywhere left of its title, not only from its
+// chevron. The chevron is small for a finger, and touch screens move a tap that lands near a link
+// onto the link, so a tap meant for it opened the folder's page instead.
+(() => {
+  for (const link of document.querySelectorAll('.sidebar .sidebarmenu summary > a')) {
+    link.addEventListener('click', (event) => {
+      const title = link.getBoundingClientRect().left + parseFloat(getComputedStyle(link).paddingLeft);
+      if (event.clientX >= title) return;
+      event.preventDefault();
+      const folder = link.closest('details');
+      folder.open = !folder.open;
+    });
+  }
+})();
+
+// On phones the sidebar is a drawer over the page, so it closes as soon as a link in it is tapped
+// and every page opens with it closed. Otter Wiki remembers the sidebar in a cookie it shares with
+// desktop, which reopened the drawer on the next page whenever it was last left open. On phones
+// Holt opens and closes it without touching that cookie, so desktop keeps its own choice.
+(() => {
+  const wrapper = document.getElementById('page-wrapper');
+  const sidebar = wrapper?.querySelector(':scope > .sidebar');
+  if (!sidebar || !window.halfmoon) return;
+
+  const phone = window.matchMedia('(max-width: 768px)');
+  const close = () => wrapper.setAttribute('data-sidebar-hidden', 'hidden');
+
+  // Halfmoon only closes the drawer once the page has loaded, so it slid away in front of the reader,
+  // and kept it open when this attribute was there. Closing it here, before it's drawn, does neither.
+  if (phone.matches) {
+    wrapper.removeAttribute('data-show-sidebar-onload-sm-and-down');
+    close();
+  }
+
+  const toggle = window.halfmoon.toggleSidebar.bind(window.halfmoon);
+  window.halfmoon.toggleSidebar = () => {
+    if (!phone.matches) return toggle();
+    if (wrapper.hasAttribute('data-sidebar-hidden')) wrapper.removeAttribute('data-sidebar-hidden');
+    else close();
+  };
+
+  sidebar.addEventListener('click', (event) => {
+    if (phone.matches && !event.defaultPrevented && event.target.closest('a[href]')) close();
+  });
+  // Going back can restore the page as it was left, with the drawer open.
+  window.addEventListener('pageshow', (event) => {
+    if (phone.matches && event.persisted) close();
+  });
+
+  // Swiping left closes the drawer, which follows the finger and fades the page's shade with it. A
+  // swipe past a third of its width or a quick flick closes it, and anything less springs back.
+  // Mostly vertical swipes are left to scroll the menu.
+  const overlay = wrapper.querySelector(':scope > .sidebar-overlay');
+  let swipe = null;
+  const drag = (dx) => {
+    sidebar.style.transform = dx ? `translateX(${dx}px)` : '';
+    if (overlay) overlay.style.opacity = dx ? String(1 + dx / sidebar.offsetWidth) : '';
+  };
+  const settle = (transition) => {
+    sidebar.style.transition = transition;
+    if (overlay) overlay.style.transition = transition.replace('transform', 'opacity');
+  };
+
+  const start = (event) => {
+    if (!phone.matches || wrapper.hasAttribute('data-sidebar-hidden') || event.touches.length > 1) {
+      return;
+    }
+    const touch = event.touches[0];
+    swipe = { x: touch.clientX, y: touch.clientY, time: event.timeStamp, dx: 0, dragging: false };
+  };
+  const move = (event) => {
+    if (!swipe) return;
+    const dx = event.touches[0].clientX - swipe.x;
+    const dy = event.touches[0].clientY - swipe.y;
+    if (!swipe.dragging) {
+      if (Math.abs(dx) < 10 && Math.abs(dy) < 10) return;
+      if (Math.abs(dy) > Math.abs(dx) || dx > 0) {
+        swipe = null;
+        return;
+      }
+      swipe.dragging = true;
+      settle('none');
+    }
+    swipe.dx = Math.min(0, dx);
+    drag(swipe.dx);
+  };
+  const end = (event) => {
+    if (!swipe?.dragging) {
+      swipe = null;
+      return;
+    }
+    const { dx, time } = swipe;
+    swipe = null;
+    const flick = dx < -30 && dx / (event.timeStamp - time) < -0.3;
+    const closing = flick || dx < -sidebar.offsetWidth / 3;
+    settle('transform 0.2s ease-out');
+    drag(closing ? -sidebar.offsetWidth : 0);
+    setTimeout(() => {
+      // Hand back to Halfmoon's own closed state without its slide, as the drawer is already gone.
+      settle('none');
+      if (closing) close();
+      drag(0);
+      sidebar.offsetWidth;
+      settle('');
+    }, 200);
+  };
+  for (const target of [sidebar, overlay]) {
+    if (!target) continue;
+    target.addEventListener('touchstart', start, { passive: true });
+    target.addEventListener('touchmove', move, { passive: true });
+    target.addEventListener('touchend', end);
+    target.addEventListener('touchcancel', end);
+  }
+})();
+
+// Peeks the closed sidebar as a floating card, as Notion does. Pointing at the window's left edge or
+// the menu button slides it out, and it slides away once the pointer has left all three. The short
+// delay lets the pointer cross from the button to the card. Touch screens open it with the button.
+(() => {
+  const wrapper = document.getElementById('page-wrapper');
+  const sidebar = wrapper?.querySelector(':scope > .sidebar');
+  const toggle = document.getElementById('toggle-sidebar-btn');
+  if (!sidebar || !toggle) return;
+
+  const desktop = window.matchMedia('(hover: hover) and (min-width: 769px)');
+  const edge = document.createElement('div');
+  edge.className = 'holt-sidebar-edge';
+  wrapper.append(edge);
+
+  let timer;
+  const peek = (event) => {
+    if (event.pointerType !== 'mouse') return;
+    clearTimeout(timer);
+    if (desktop.matches && wrapper.hasAttribute('data-sidebar-hidden')) {
+      wrapper.classList.add('holt-sidebar-peek');
+    }
+  };
+  const unpeek = (event) => {
+    if (event.pointerType !== 'mouse') return;
+    clearTimeout(timer);
+    timer = setTimeout(() => wrapper.classList.remove('holt-sidebar-peek'), 300);
+  };
+  for (const target of [edge, toggle, sidebar]) {
+    target.addEventListener('pointerenter', peek);
+    target.addEventListener('pointerleave', unpeek);
+  }
+  // Clicking the button opens or closes the sidebar for good, so the peek is over either way.
+  toggle.addEventListener('click', () => {
+    clearTimeout(timer);
+    wrapper.classList.remove('holt-sidebar-peek');
+  });
 })();
 
 // Search as you type in a centred dialog, as in Notion. The navbar's search box becomes a button,

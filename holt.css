@@ -276,6 +276,72 @@ input[type="radio"] {
     .page-wrapper.with-sidebar > .navbar::before {
         display: none;
     }
+
+    /* On phones the sidebar is a modal drawer, sized as Material Design sizes them. It leaves 56px
+     * of the page showing to tap to close it, up to 360px wide. Like the peek card, it floats, so
+     * it takes the white of the other floating surfaces in light mode. */
+    .page-wrapper.with-sidebar > .sidebar {
+        width: min(calc(100% - 5.6rem), 36rem);
+        background: var(--holt-sidebar-float);
+    }
+}
+
+/* A closed sidebar peeks out as a floating card when the pointer reaches the window's left edge or
+ * the menu button, as in Notion. holt.js adds .holt-sidebar-peek and the .holt-sidebar-edge strip.
+ * The sidebar keeps the card's shape while closed and slides by its own width rather than
+ * Halfmoon's full viewport, so it opens from just off screen. Opening it for good turns the card
+ * back into the column. */
+.holt-sidebar-edge {
+    display: none;
+}
+
+@media (min-width: 769px) {
+    .page-wrapper.with-sidebar[data-sidebar-hidden] > .sidebar {
+        left: 0;
+        top: calc(var(--navbar-height) + 1rem);
+        width: var(--sidebar-width);
+        height: calc(100% - var(--navbar-height) - 3.4rem);
+        /* The menu shadow's 1px ring outlines the card, as on the contents panel. */
+        border: 0;
+        /* Square on the left, so it still looks pulled out of the window's edge. */
+        border-radius: 0 1.4rem 1.4rem 0;
+        transform: translateX(calc(-100% - 3rem));
+        background: var(--holt-sidebar-float);
+    }
+
+    .page-wrapper.with-sidebar[data-sidebar-hidden].holt-sidebar-peek > .sidebar {
+        transform: none;
+        box-shadow: var(--holt-shadow-menu);
+    }
+
+    .page-wrapper.with-transitions.with-sidebar > .sidebar {
+        transition:
+            transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1),
+            top 0.4s cubic-bezier(0.25, 0.8, 0.25, 1),
+            width 0.4s cubic-bezier(0.25, 0.8, 0.25, 1),
+            height 0.4s cubic-bezier(0.25, 0.8, 0.25, 1),
+            border-radius 0.4s cubic-bezier(0.25, 0.8, 0.25, 1),
+            box-shadow 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+    }
+
+    .page-wrapper.with-sidebar[data-sidebar-hidden] > .navbar::before {
+        left: 0;
+        transform: translateX(calc(-100% - 3rem));
+    }
+
+    .page-wrapper.with-transitions.with-sidebar > .navbar::before {
+        transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+    }
+
+    .page-wrapper.with-sidebar[data-sidebar-hidden] > .holt-sidebar-edge {
+        display: block;
+        position: fixed;
+        top: var(--navbar-height);
+        bottom: 0;
+        left: 0;
+        width: 1.2rem;
+        z-index: 19;
+    }
 }
 
 .navbar-brand {
@@ -367,7 +433,8 @@ input[type="radio"] {
     font-size: 1.4rem;
 }
 
-.sidebar-link:hover,
+/* .sidebar outranks Halfmoon's .dark-mode .sidebar-link:hover, which clears the background. */
+.sidebar .sidebar-link:hover,
 .sidebar .sidebarmenu a:hover,
 .extra-nav .sidebar-link:hover {
     background: var(--holt-hover);
@@ -376,6 +443,7 @@ input[type="radio"] {
 }
 
 .sidebar-link.sidebar-active,
+.sidebar-menu > .sidebar-link[aria-current="page"],
 .sidebar .sidebarmenu a[aria-current="page"],
 .extra-nav .sidebar-link.sidebar-active {
     background: var(--holt-selected-bg);
@@ -383,15 +451,112 @@ input[type="radio"] {
     font-weight: 600;
 }
 
-.sidebar .sidebarmenu a {
-    display: inline-block;
-    padding: 0.2rem 0.8rem;
-    margin-left: -0.8rem;
+/* Every item is a full-width row as in Notion, so hover and the current page fill the sidebar's
+ * width. Rows share one height, and their text lines up after a 2rem icon or chevron slot. */
+.sidebar-menu > .sidebar-link {
+    min-height: 3rem;
+    padding: 0.5rem 0.8rem;
+    align-items: center;
+    line-height: 2rem;
 }
 
-.sidebar-link-with-icon .sidebar-icon {
+/* Halfmoon gives the icon its own square on hover, which reads as a button inside the row. */
+.sidebar-link-with-icon .sidebar-icon,
+.sidebar-menu > .sidebar-link-with-icon:hover .sidebar-icon {
+    width: 2rem;
+    height: 2rem;
+    margin-right: 0.8rem;
     background: transparent;
+    border-color: transparent;
     color: var(--holt-text-3);
+}
+
+.sidebar-menu > .sidebar-link-with-icon:is(:hover, [aria-current="page"]) .sidebar-icon {
+    color: inherit;
+}
+
+.sidebar .collapse-panel {
+    padding-left: 0;
+    padding-right: 0;
+}
+
+/* Otter Wiki indents the page index with padding on each list item, which leaves the links
+ * shrink-wrapped beside it. Holt moves the indent inside the row instead. The nested lists are
+ * classed by depth modulo 4, so pairs of classes reach the deeper levels. */
+.sidebar .parent-sidebar-menu {
+    --holt-depth: 0;
+}
+.sidebar .sidebarmenu-loop-1 { --holt-depth: 1; }
+.sidebar .sidebarmenu-loop-2 { --holt-depth: 2; }
+.sidebar .sidebarmenu-loop-3 { --holt-depth: 3; }
+.sidebar .sidebarmenu-loop-0 { --holt-depth: 4; }
+.sidebar .sidebarmenu-loop-0 .sidebarmenu-loop-1 { --holt-depth: 5; }
+.sidebar .sidebarmenu-loop-0 .sidebarmenu-loop-2 { --holt-depth: 6; }
+.sidebar .sidebarmenu-loop-0 .sidebarmenu-loop-3 { --holt-depth: 7; }
+
+.sidebar .sidebarmenu,
+.sidebar .sidebarmenu ul {
+    margin: 0;
+    padding: 0;
+}
+
+.sidebar .sidebarmenu li {
+    margin: 0.1rem 0 0;
+    padding: 0;
+    line-height: inherit;
+    word-break: normal;
+}
+
+.sidebar .sidebarmenu .summary-details {
+    display: block;
+}
+
+.sidebar .sidebarmenu details > summary {
+    position: relative;
+    display: block;
+    color: var(--holt-text-3);
+    cursor: pointer;
+}
+
+.sidebar .sidebarmenu :is(summary, .summary-details) > :is(a, span) {
+    display: block;
+    margin: 0;
+    padding: 0.5rem 0.8rem 0.5rem calc(3.6rem + var(--holt-depth) * 1.6rem);
+    border-radius: var(--holt-radius);
+    line-height: 2rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    opacity: 1;
+}
+
+/* Pages without children keep the chevron's slot empty, so siblings line up. */
+.sidebar .sidebarmenu .summary-details::before {
+    content: none;
+}
+
+/* The chevron sits over the link but belongs to the summary, so clicking it opens or closes the
+ * folder and clicking the title opens the page. */
+.sidebar .sidebarmenu details > summary::before,
+.sidebar .sidebarmenu details[open] > summary::before {
+    content: "";
+    position: absolute;
+    z-index: 1;
+    top: 0.5rem;
+    left: calc(0.8rem + var(--holt-depth) * 1.6rem);
+    width: 2rem;
+    height: 2rem;
+    background: currentColor;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' %3E%3Cpath d='m9 18 6-6-6-6' /%3E%3C/svg%3E") center / 1.6rem no-repeat; /* lucide chevron-right */
+    transition: transform 0.15s ease;
+}
+
+.sidebar .sidebarmenu details[open] > summary::before {
+    transform: rotate(90deg);
+}
+
+.sidebar .sidebarmenu details > summary:hover::before {
+    color: var(--holt-text);
 }
 
 .sidebar .collapse-header,
@@ -412,8 +577,31 @@ input[type="radio"] {
     font-weight: 400;
 }
 
+/* The menu scrolls on its own above the otter, which stays at the foot of the sidebar behind a
+ * hairline as Notion's footer does. So the scrollbar ends above the otter too. */
+.sidebar {
+    overflow-y: hidden;
+}
+
+.sidebar-menu {
+    min-height: 0;
+    margin-bottom: 0;
+    overflow-y: auto;
+}
+
 .sidebar-otter {
+    flex-shrink: 0;
+    border-top: 1px solid var(--holt-divider);
+}
+
+.sidebar-otter > a {
+    padding: 0.8rem 1rem;
     opacity: 0.25;
+    font-size: 1.2rem;
+}
+
+.sidebar-otter img.sidebar-logo {
+    width: 7rem;
 }
 
 /* Floating outline, as in Notion. holt.js moves "On this page" out of its column into .holt-toc. It
@@ -767,8 +955,8 @@ input[type="radio"] {
     text-overflow: ellipsis;
 }
 
-/* Menu toggles only show a focus ring for the keyboard, not after a click. */
-.btn[data-toggle="dropdown"]:focus:not(:focus-visible) {
+/* Menu and sidebar toggles only show a focus ring for the keyboard, not after a click. */
+:is(.btn[data-toggle="dropdown"], #toggle-sidebar-btn):focus:not(:focus-visible) {
     box-shadow: none;
 }
 
@@ -1219,6 +1407,8 @@ i.fa-file-video::before {
 }
 
 i.fa-bars { --holt-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' %3E%3Cpath d='M4 5h16' /%3E%3Cpath d='M4 12h16' /%3E%3Cpath d='M4 19h16' /%3E%3C/svg%3E"); } /* lucide menu */
+/* Open, the sidebar toggle is a panel icon as in Notion. Closed, it stays the menu icon. */
+.page-wrapper:not([data-sidebar-hidden]) #toggle-sidebar-btn i.fa-bars { --holt-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' %3E%3Crect width='18' height='18' x='3' y='3' rx='2' /%3E%3Cpath d='M9 3v18' /%3E%3C/svg%3E"); } /* lucide panel-left */
 i.fa-ellipsis-v { --holt-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' %3E%3Ccircle cx='12' cy='12' r='1' /%3E%3Ccircle cx='19' cy='12' r='1' /%3E%3Ccircle cx='5' cy='12' r='1' /%3E%3C/svg%3E"); } /* lucide ellipsis */
 i.fa-home { --holt-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' %3E%3Cpath d='M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8' /%3E%3Cpath d='M3 10a2 2 0 0 1 .709-1.528l7-6a2 2 0 0 1 2.582 0l7 6A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z' /%3E%3C/svg%3E"); } /* lucide house */
 i.fa-list { --holt-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' %3E%3Cpath d='M3 5h.01' /%3E%3Cpath d='M3 12h.01' /%3E%3Cpath d='M3 19h.01' /%3E%3Cpath d='M8 5h13' /%3E%3Cpath d='M8 12h13' /%3E%3Cpath d='M8 19h13' /%3E%3C/svg%3E"); } /* lucide list */
