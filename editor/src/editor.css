@@ -492,7 +492,7 @@
   max-height: min(60vh, 44rem);
   overflow-y: auto;
   padding: 0.6rem;
-  border-radius: var(--holt-radius);
+  border-radius: 1rem;
   background: var(--lm-dropdown-menu-bg-color);
   box-shadow: var(--holt-shadow-menu);
   color: var(--holt-text);
