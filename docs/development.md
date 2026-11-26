@@ -7,6 +7,17 @@ The Lucide icons are SVGs embedded in `holt.css`, each followed by a comment nam
 version set in the script and rewrites them. To change an icon, change its name in the comment and
 run the script.
 
+## Updating the screenshots
+
+`tools/screenshots.mjs` retakes every image in `screenshots/`. It starts Otter Wiki in Docker with
+Holt loaded from the working tree, and again without it for the "before" shot. Both are seeded with
+the household wiki in `tools/screenshots/wiki`. It needs Docker running and the Playwright setup
+from the integration tests.
+
+```sh
+node tools/screenshots.mjs
+```
+
 ## Building the editor
 
 The rich text editor's source is in `editor/`, an npm project that bundles Milkdown with esbuild.
