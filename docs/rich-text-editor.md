@@ -67,5 +67,5 @@ the first time the emoji picker opens. To use only the Markdown editor, add `dat
 Holt's script tag:
 
 ```yaml
-      HTML_EXTRA_BODY: '<script src="https://cdn.jsdelivr.net/gh/ryan-jan/otterwiki-holt@v0.7.0/holt.js" data-editor="off"></script>'
+      HTML_EXTRA_BODY: '<script src="https://cdn.jsdelivr.net/gh/ryan-jan/otterwiki-holt@v0.7.1/holt.js" data-editor="off"></script>'
 ```
