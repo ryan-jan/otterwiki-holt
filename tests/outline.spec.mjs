@@ -21,6 +21,19 @@ test.describe('@outline', () => {
     expect(Math.abs(rung - title)).toBeLessThan(3);
   });
 
+  test('lines its first rung up with the title while editing', async ({ page }) => {
+    await page.goto('/Outline/edit');
+    const middle = (selector) =>
+      page.locator(selector).first().evaluate((el) => {
+        const box = el.getBoundingClientRect();
+        return box.top + box.height / 2;
+      });
+    await expect(page.locator('.holt-toc-rung').first()).toBeVisible();
+    await expect
+      .poll(async () => Math.abs((await middle('.holt-toc-rung')) - (await middle('.ProseMirror > *'))))
+      .toBeLessThan(3);
+  });
+
   // holt.js loads last, so long pages paint before it has moved the outline out of its column.
   test('hides the outline column before holt.js runs', async ({ page }) => {
     await page.route('**/holt.js*', (route) => route.abort());

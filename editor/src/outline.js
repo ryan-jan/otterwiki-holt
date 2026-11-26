@@ -105,6 +105,9 @@ export function createOutline(getView) {
   for (const type of ['wheel', 'touchmove']) content.addEventListener(type, unpin, { passive: true });
   content.addEventListener('scroll', highlight, { passive: true });
   window.addEventListener('resize', place);
+  // The editor finishes styling its blocks a frame or two after it starts, which moves the title.
+  const resized = new ResizeObserver(place);
+  resized.observe(getView().dom);
 
   refresh();
 
@@ -114,6 +117,7 @@ export function createOutline(getView) {
       for (const type of ['wheel', 'touchmove']) content.removeEventListener(type, unpin);
       content.removeEventListener('scroll', highlight);
       window.removeEventListener('resize', place);
+      resized.disconnect();
       document.removeEventListener('click', closeOnTap);
       toc.remove();
     },
