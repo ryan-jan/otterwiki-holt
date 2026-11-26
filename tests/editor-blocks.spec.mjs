@@ -1,4 +1,4 @@
-import { END, expect, markdown, markdownWhen, openRichEditor, test } from './support/test.mjs';
+import { END, expect, markdown, markdownWhen, openRichEditor, placeCursor, test } from './support/test.mjs';
 
 const prose = (page) => page.locator('.ProseMirror');
 const slashMenu = (page) => page.locator('.milkdown-slash-menu');
@@ -96,7 +96,7 @@ test.describe('@editor-blocks', () => {
 
   test('moves blocks with the keyboard', async ({ page }) => {
     await openRichEditor(page, 'Roundtrip/Basics');
-    await prose(page).locator('> h2', { hasText: 'Code' }).click();
+    await placeCursor(prose(page).locator('> h2', { hasText: 'Code' }));
     await page.keyboard.press('ControlOrMeta+Shift+ArrowUp');
     let md = await markdownWhen(page, (text) => text.indexOf('## Code') < text.indexOf('---'));
     await page.keyboard.press('ControlOrMeta+Shift+ArrowDown');
@@ -106,14 +106,14 @@ test.describe('@editor-blocks', () => {
 
   test('moves list items within their list', async ({ page }) => {
     await openRichEditor(page, 'Roundtrip/Basics');
-    await prose(page).locator('li', { hasText: 'Three' }).click();
+    await placeCursor(prose(page).locator('li', { hasText: 'Three' }));
     await page.keyboard.press('ControlOrMeta+Shift+ArrowUp');
     await markdownWhen(page, (md) => md.indexOf('Three') < md.indexOf('Two'));
   });
 
   test('duplicates a block with the keyboard and moves into the copy', async ({ page }) => {
     await openRichEditor(page, 'Roundtrip/Basics');
-    await prose(page).locator('> h2', { hasText: 'Lists' }).click();
+    await placeCursor(prose(page).locator('> h2', { hasText: 'Lists' }));
     await page.keyboard.press(END);
     await page.keyboard.press('ControlOrMeta+d');
     await page.keyboard.type(' again');
