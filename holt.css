@@ -614,15 +614,16 @@ input[type="radio"] {
 
 @media (min-width: 1200px) {
     /* Otter Wiki keeps the outline's column even when there's no outline to show, as on diffs and
-     * pages without headings, which pushed the page off centre. Once holt.js moves the outline out,
-     * the column is empty too. Either way it goes, and the page takes the full width and centres.
+     * pages without headings, which pushed the page off centre. holt.js moves any outline out of it
+     * anyway, so it goes, and the page takes the full width and centres. It goes without waiting for
+     * holt.js, which loads last, so long pages don't paint the column before the script runs.
      * Otter Wiki's diff template leaves a div open, so there the column sits inside #column-main.
      * The editor's column also holds its attachment and wiki link panels, so it stays. */
-    .row:has(#extranav-toc):not(:has(#column-extra a.sidebar-link + a.sidebar-link, #extranav-attachments)) #column-extra {
+    .row:has(#extranav-toc):not(:has(#extranav-attachments)) #column-extra {
         display: none !important;
     }
 
-    .row:has(#extranav-toc):not(:has(#column-extra a.sidebar-link + a.sidebar-link, #extranav-attachments)) > #column-main {
+    .row:has(#extranav-toc):not(:has(#extranav-attachments)) > #column-main {
         flex: 0 0 100%;
         max-width: 100%;
     }

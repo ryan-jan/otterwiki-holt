@@ -21,6 +21,13 @@ test.describe('@outline', () => {
     expect(Math.abs(rung - title)).toBeLessThan(3);
   });
 
+  // holt.js loads last, so long pages paint before it has moved the outline out of its column.
+  test('hides the outline column before holt.js runs', async ({ page }) => {
+    await page.route('**/holt.js*', (route) => route.abort());
+    await page.goto('/Outline');
+    await expect(page.locator('#column-extra')).toBeHidden();
+  });
+
   test('opens into the full outline on hover', async ({ page }) => {
     await page.goto('/Outline');
     const link = page.locator('.holt-toc-panel a', { hasText: 'Fuse box' });
