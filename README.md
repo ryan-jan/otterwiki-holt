@@ -4,6 +4,11 @@ Holt is a Notion-style theme for [An Otter Wiki](https://otterwiki.com) with a r
 built on [Milkdown](https://milkdown.dev). You add it through two Otter Wiki settings, and Otter
 Wiki itself stays as it is.
 
+> [!WARNING]
+> Holt is in beta while its version starts with 0. Expect rough edges, and expect the look and the
+> settings to change between minor releases. Check the release notes before you upgrade, and
+> [open an issue](https://github.com/ryan-jan/otterwiki-holt/issues) if something breaks.
+
 ![Holt in light mode](screenshots/light.png)
 
 | Before | After |
