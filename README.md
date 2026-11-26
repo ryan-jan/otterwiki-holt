@@ -1,9 +1,8 @@
 # Holt
 
-Holt is a Notion-style theme for [An Otter Wiki](https://otterwiki.com). You add it through two
-Otter Wiki settings, and Otter Wiki itself stays as it is.
-
-A holt is an otter's den.
+Holt is a Notion-style theme for [An Otter Wiki](https://otterwiki.com) with a rich text editor
+built on [Milkdown](https://milkdown.dev). You add it through two Otter Wiki settings, and Otter
+Wiki itself stays as it is.
 
 ![Holt in light mode](screenshots/light.png)
 
@@ -13,12 +12,13 @@ A holt is an otter's den.
 
 ## Features
 
+- A rich text editor built on [Milkdown](https://milkdown.dev), with Notion's `/` menu, block
+  handles and `[[` page links. It only opens pages it can save without changing them, and the
+  standard Otter Wiki Markdown editor is always available.
 - A centred reading column with Notion's type sizes, warm text, soft tables and tinted callouts.
 - A search dialog, opened with `/` or ⌘K, that finds pages and headings as you type.
 - A floating outline at the page's right edge on wide screens.
 - Edit and the page menu beside the breadcrumbs, with a Full width switch for each page.
-- A rich text editor with Notion's `/` menu, block handles and `[[` page links. It only opens pages
-  it can save without changing them, and the Markdown editor is always available.
 - [Lucide](https://lucide.dev) icons, embedded in the stylesheet.
 - Matching history, blame, diffs, search results, settings and forms.
 - Dark mode, and every page checked at phone width.
@@ -99,3 +99,7 @@ contacts any other server.
 MIT. See [LICENSE](LICENSE). The embedded [Lucide](https://lucide.dev) icons are under the ISC
 licence. See [LICENSE-lucide](LICENSE-lucide). The rich text editor bundles Milkdown, ProseMirror
 and other open source libraries, whose licences are listed in `holt-editor.js.LEGAL.txt`.
+
+## What is a Holt?
+
+A holt is an otter's den.
