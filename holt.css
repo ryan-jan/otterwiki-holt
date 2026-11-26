@@ -1196,6 +1196,43 @@ body[data-page-path] .navbar #edit-page-btn {
     box-shadow: var(--holt-shadow-menu);
 }
 
+/* Toasts keep the usual meanings whatever the accent is: blue for information, green for success,
+ * yellow for warnings and red for errors. Otter Wiki shows most of its plain confirmations as
+ * primary alerts, which Halfmoon would fill with the accent. */
+.sticky-alerts .alert.filled,
+.dark-mode .sticky-alerts .alert.filled {
+    border: 0;
+    color: var(--holt-text);
+}
+
+.sticky-alerts .alert.alert-primary.filled,
+.dark-mode .sticky-alerts .alert.alert-primary.filled {
+    background: var(--holt-blue-bg);
+    box-shadow: inset 3px 0 0 var(--holt-blue), var(--holt-shadow-menu);
+}
+
+.sticky-alerts .alert.alert-success.filled,
+.dark-mode .sticky-alerts .alert.alert-success.filled {
+    background: var(--holt-green-bg);
+    box-shadow: inset 3px 0 0 var(--holt-green), var(--holt-shadow-menu);
+}
+
+.sticky-alerts .alert.alert-secondary.filled,
+.dark-mode .sticky-alerts .alert.alert-secondary.filled {
+    background: var(--holt-yellow-bg);
+    box-shadow: inset 3px 0 0 var(--holt-yellow), var(--holt-shadow-menu);
+}
+
+.sticky-alerts .alert.alert-danger.filled,
+.dark-mode .sticky-alerts .alert.alert-danger.filled {
+    background: var(--holt-red-bg);
+    box-shadow: inset 3px 0 0 var(--holt-red), var(--holt-shadow-menu);
+}
+
+.sticky-alerts .alert.filled .close {
+    color: var(--holt-text-3);
+}
+
 .btn {
     font-weight: 500;
 }
