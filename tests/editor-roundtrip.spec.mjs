@@ -9,6 +9,7 @@ const RICH = {
   'Roundtrip/Tables': 'roundtrip/tables.md',
   'Roundtrip/Wiki-links': 'roundtrip/wiki-links.md',
   'Roundtrip/Otter-blocks': 'roundtrip/otter-blocks.md',
+  'Roundtrip/Otter-blocks-nested': 'roundtrip/otter-blocks-nested.md',
 };
 
 const MARKDOWN_ONLY = {

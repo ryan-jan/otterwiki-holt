@@ -33,7 +33,7 @@ test.describe('@editor-blocks', () => {
     await openRichEditor(page, 'Roundtrip/Basics');
     await newParagraph(page);
     await page.keyboard.type('/');
-    for (const item of ['Emoji', 'Wiki link', 'Attachment', 'Info box', 'Alert', 'Spoiler', 'Folded section', 'Maths']) {
+    for (const item of ['Emoji', 'Wiki link', 'Attachment', 'Spoiler', 'Folded section', 'Maths', 'Info box', 'Danger box', 'Note alert', 'Caution alert']) {
       await expect(slashMenu(page).locator('li[data-index]', { hasText: item })).toHaveCount(1);
     }
   });
@@ -147,6 +147,143 @@ test.describe('@editor-blocks', () => {
     await page.keyboard.press('Escape');
     await expect(page.locator('.holt-page-link')).toHaveCount(0);
     await expect(prose(page)).toContainText('[[Outl');
+  });
+
+  test.describe('Otter Wiki blocks', () => {
+    async function insert(page, item) {
+      await openRichEditor(page, 'Roundtrip/Basics');
+      await newParagraph(page);
+      await page.keyboard.type(`/${item}`);
+      await expect(slashMenu(page).locator('li[data-index]').first()).toHaveText(new RegExp(item, 'i'));
+      await page.keyboard.press('Enter');
+    }
+
+    test('inserts an info box and edits its content as text', async ({ page }) => {
+      await insert(page, 'Info box');
+      await page.keyboard.type('Check the boiler ');
+      await page.keyboard.press('ControlOrMeta+b');
+      await page.keyboard.type('first');
+      await markdownWhen(page, (md) => md.includes('::: info\nCheck the boiler **first**\n:::'));
+    });
+
+    test('adds a heading to an info box above its content', async ({ page }) => {
+      await insert(page, 'Info box');
+      await page.keyboard.type('Text');
+      await page.keyboard.press('ArrowUp');
+      await page.keyboard.type('Heads up');
+      await markdownWhen(page, (md) => md.includes('::: info\n# Heads up\nText\n:::'));
+    });
+
+    test('inserts each type of alert straight from the / menu', async ({ page }) => {
+      await insert(page, 'Caution');
+      await page.keyboard.type('Hot surface.');
+      await markdownWhen(page, (md) => md.includes('> [!CAUTION]\n> Hot surface.'));
+    });
+
+    test('offers a warning as either an info box or an alert', async ({ page }) => {
+      await openRichEditor(page, 'Roundtrip/Basics');
+      await newParagraph(page);
+      await page.keyboard.type('/warning');
+      await expect(slashMenu(page).locator('li[data-index]')).toHaveText(['Warning box', 'Warning alert']);
+      await page.keyboard.press('ArrowDown');
+      await page.keyboard.press('Enter');
+      await page.keyboard.type('Wet paint.');
+      await markdownWhen(page, (md) => md.includes('> [!WARNING]\n> Wet paint.'));
+    });
+
+    test('changes the type of an info box', async ({ page }) => {
+      await openRichEditor(page, 'Roundtrip/Otter-blocks');
+      await prose(page).locator('.otter-fancy').hover();
+      await prose(page).locator('.otter-fancy .otter-block-type').selectOption('warning');
+      await expect(prose(page).locator('.otter-fancy')).toHaveClass(/alert-secondary/);
+      await markdownWhen(page, (md) => md.includes('::: warning\n# Tip\nInfo boxes have an optional heading.\n:::'));
+    });
+
+    test('inserts an alert and changes its type', async ({ page }) => {
+      await insert(page, 'Alert');
+      await page.keyboard.type('Mind the step.');
+      await prose(page).locator('.otter-alert .otter-block-type').last().selectOption('TIP');
+      await markdownWhen(page, (md) => md.includes('> [!TIP]\n> Mind the step.'));
+    });
+
+    test('inserts a folded section, summary first', async ({ page }) => {
+      await insert(page, 'Folded section');
+      await page.keyboard.type('Spare keys');
+      await page.keyboard.press('Enter');
+      await page.keyboard.type('In the blue tin.');
+      await markdownWhen(page, (md) => md.includes('>| # Spare keys\n>| In the blue tin.'));
+    });
+
+    test('folds and unfolds a folded section while editing', async ({ page }) => {
+      await openRichEditor(page, 'Roundtrip/Otter-blocks');
+      const fold = prose(page).locator('.otter-fold');
+      await fold.locator('.otter-fold-toggle').click();
+      await expect(fold.locator('p', { hasText: 'With hidden details.' })).toBeHidden();
+      await fold.locator('.otter-fold-toggle').click();
+      await expect(fold.locator('p', { hasText: 'With hidden details.' })).toBeVisible();
+    });
+
+    test('inserts a spoiler', async ({ page }) => {
+      await insert(page, 'Spoiler');
+      await page.keyboard.type('The butler did it.');
+      await markdownWhen(page, (md) => md.includes('>! The butler did it.'));
+    });
+
+    test('leaves a block with Enter on an empty last line', async ({ page }) => {
+      await insert(page, 'Alert');
+      await page.keyboard.type('Inside.');
+      await page.keyboard.press('Enter');
+      await page.keyboard.press('Enter');
+      await page.keyboard.type('Outside.');
+      await markdownWhen(page, (md) => md.includes('> [!NOTE]\n> Inside.\n\nOutside.'));
+    });
+
+    for (const item of ['Spoiler', 'Alert', 'Info box']) {
+      test(`turns an empty ${item.toLowerCase()} back into text with Backspace`, async ({ page }) => {
+        await insert(page, item);
+        await expect(prose(page).locator('.otter-block')).toHaveCount(1);
+        if (item === 'Info box') await page.keyboard.press('Backspace');
+        await page.keyboard.press('Backspace');
+        await expect(prose(page).locator('.otter-block')).toHaveCount(0);
+        await page.keyboard.type('Text again');
+        await expect(prose(page).locator('> p', { hasText: 'Text again' })).toHaveCount(1);
+      });
+    }
+
+    test('keeps a block it can\'t edit as text as a raw block', async ({ page }) => {
+      await openRichEditor(page, 'Roundtrip/Otter-blocks-nested');
+      await expect(prose(page).locator('.otter-raw')).toHaveCount(2);
+      await expect(prose(page).locator('.otter-raw', { hasText: 'A heading inside an info box' })).toHaveCount(1);
+      await expect(prose(page).locator('.otter-fold .otter-alert')).toHaveCount(1);
+    });
+
+    // The cursor is one element Crepe positions over the page, so a positioned block can hide it.
+    test('shows the cursor inside blocks', async ({ page }) => {
+      const cursorShows = () =>
+        page.evaluate(() => {
+          const cursor = document.querySelector('.prosemirror-virtual-cursor');
+          if (!cursor) return false;
+          cursor.style.pointerEvents = 'auto';
+          const box = cursor.getBoundingClientRect();
+          const shown = document.elementFromPoint(box.left + 1.5, box.top + box.height / 2) === cursor;
+          cursor.style.pointerEvents = '';
+          return shown;
+        });
+      await openRichEditor(page, 'Roundtrip/Otter-blocks-nested');
+      for (const selector of ['.otter-spoiler .otter-block-content', '.otter-alert p', '.otter-fancy p', '.otter-fold p']) {
+        // Clicks in quick succession would count as a double-click and select a word.
+        await page.waitForTimeout(600);
+        await placeCursor(prose(page).locator(selector).first());
+        await expect.poll(cursorShows, selector).toBe(true);
+      }
+    });
+
+    test('refuses to save a heading inside an info box', async ({ page }) => {
+      await insert(page, 'Info box');
+      await page.keyboard.type('## Not a heading');
+      await page.locator('#save-page-btn').click();
+      await expect(page.locator('.sticky-alerts')).toContainText('Info boxes can’t hold headings');
+    });
   });
 
   test.describe('attachments', () => {

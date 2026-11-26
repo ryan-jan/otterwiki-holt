@@ -16,6 +16,28 @@ it looks as it will once saved. It works much like Notion's editor.
 
 ![The rich text editor with the / menu open](../screenshots/editor.png)
 
+## Otter Wiki blocks
+
+Info boxes, alerts, folded sections and spoilers are edited as text, like Notion's callouts and
+toggles. Their content can hold formatting, lists, links, quotes, code and other blocks.
+
+- The `/` menu has an item for each type, named for its kind, such as Danger box or Caution alert.
+  Type `/caution` for a caution alert, or `/warning` to choose between a warning box and a warning
+  alert.
+- Change the type of an info box (info, warning, danger or success) from the label in its corner,
+  and the type of an alert (note, tip, important, warning or caution) from its header.
+- An info box's heading shows while you're in the box. Leave it empty for a box with no heading.
+- A folded section's first line is its summary. The arrow folds it while you edit, and it's always
+  folded on the page.
+- Press Enter on an empty last line to leave a block, and Backspace in an empty block to turn it
+  back into text.
+
+Maths, footnotes, abbreviations and the rest of Otter Wiki's syntax show as they'll render, and
+their source opens in place to edit. So does any info box, alert, fold or spoiler the editor can't
+show as text exactly as Otter Wiki renders it, such as an info box with a heading inside its
+content, which Otter Wiki shows as plain text. Saving is refused, with the reason, if an edit would
+make Otter Wiki read a block differently, for example a heading added inside an info box.
+
 ## Markdown mode
 
 The `</>` button beside Save switches to the Markdown editor, and the wand switches back. Holt
@@ -30,8 +52,7 @@ saving, drafts and attachments all work from the Markdown.
 
 A page only opens in rich mode if Otter Wiki renders it exactly the same after a round trip through
 the rich editor, so the editor can't change a page you didn't edit. Any other page opens in Markdown
-mode, and the wand explains why. Info boxes, alerts, maths and the rest of Otter Wiki's syntax show
-as they'll render, and their source opens in place to edit.
+mode, and the wand explains why.
 
 Once you change something, the rich editor writes out the whole page in its own style. The page
 renders the same, but some Markdown may be laid out differently, such as padded table columns, so

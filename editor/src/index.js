@@ -33,7 +33,7 @@ import {
 } from '@milkdown/kit/preset/commonmark';
 import { replaceAll } from '@milkdown/kit/utils';
 
-import { RAW_LANG, formatWikilink, protect, unprotect } from './dialect.js';
+import { ALERT_TYPES, FANCY_FAMILIES, RAW_LANG, formatWikilink, protect, unprotect } from './dialect.js';
 import { askAttachment, askWikilink } from './dialogs.js';
 import { openEmojiPicker } from './emoji.js';
 import { attachmentUrl, renderMarkdown, uploadAttachment } from './otter.js';
@@ -47,6 +47,7 @@ import {
 import { holtBlockHandle } from './block-handle.js';
 import { blockKeys } from './block-keys.js';
 import { createOutline } from './outline.js';
+import { insertOtterBlock, invalidOtterBlocks, otterBlocks, otterBlocksConfig } from './otter-blocks.js';
 import { pageLinkPicker } from './page-link.js';
 import { codeBlockView, invalidRawBlocks, markPageLoaded } from './raw-block.js';
 import './editor.css';
@@ -70,11 +71,26 @@ const ICONS = {
   attachment: icon('M16.5 6v11.5a4 4 0 0 1-8 0V5a2.5 2.5 0 0 1 5 0v10.5a1 1 0 0 1-2 0V6H10v9.5a2.5 2.5 0 0 0 5 0V5a4 4 0 0 0-8 0v12.5a5.5 5.5 0 0 0 11 0V6Z'),
 };
 
+const OTTER_BLOCKS = { spoiler: 'Spoiler', fold: 'Folded section' };
+// One item per type, named for its kind too, because a warning can be an info box or an alert.
+const capitalise = (word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+const CALLOUTS = [
+  ...FANCY_FAMILIES.map((family) => ({
+    key: `box-${family}`,
+    label: `${capitalise(family)} box`,
+    icon: ICONS.info,
+    kind: 'info',
+    attrs: { family },
+  })),
+  ...ALERT_TYPES.map((type) => ({
+    key: `alert-${type.toLowerCase()}`,
+    label: `${capitalise(type)} alert`,
+    icon: ICONS.alert,
+    kind: 'alert',
+    attrs: { type },
+  })),
+];
 const RAW_TEMPLATES = {
-  info: { label: 'Info box', text: '::: info\n# Heading\nText\n:::' },
-  alert: { label: 'Alert', text: '> [!NOTE]\n> Text' },
-  spoiler: { label: 'Spoiler', text: '>! Hidden text' },
-  fold: { label: 'Folded section', text: '>| # Summary\n>| Details' },
   maths: { label: 'Maths', text: '$$\na^2+b^2=c^2\n$$' },
 };
 
@@ -296,8 +312,29 @@ function createCrepe(root, markdown) {
           icon: ICONS.attachment,
           onRun: (ctx) => insertAttachment(ctx),
         });
+        for (const [key, label] of Object.entries(OTTER_BLOCKS)) {
+          group.addItem(key, {
+            label,
+            icon: ICONS[key],
+            onRun: (ctx) => {
+              ctx.get(commandsCtx).call(clearTextInCurrentBlockCommand.key);
+              insertOtterBlock(ctx.get(editorViewCtx), key);
+            },
+          });
+        }
         for (const [key, { label, text }] of Object.entries(RAW_TEMPLATES)) {
           group.addItem(key, { label, icon: ICONS[key], onRun: (ctx) => insertRawBlock(ctx, text) });
+        }
+        const callouts = builder.addGroup('callouts', 'Info boxes and alerts');
+        for (const { key, label, icon, kind, attrs } of CALLOUTS) {
+          callouts.addItem(key, {
+            label,
+            icon,
+            onRun: (ctx) => {
+              ctx.get(commandsCtx).call(clearTextInCurrentBlockCommand.key);
+              insertOtterBlock(ctx.get(editorViewCtx), kind, attrs);
+            },
+          });
         }
       },
     })
@@ -336,10 +373,12 @@ function createCrepe(root, markdown) {
       ctx.update(editorViewOptionsCtx, (prev) => ({ ...prev, attributes: { class: 'page' } })),
     )
     .config(otterStringify)
+    .config(otterBlocksConfig)
     .config((ctx) => ctx.update(uploadConfig.key, (prev) => ({ ...prev, uploader })))
     // After the features, so it replaces Crepe's own block handle.
     .config(holtBlockHandle)
     .use(otterPlugins)
+    .use(otterBlocks)
     .use(pageLinkPicker)
     .use(blockKeys)
     .use(codeBlockView);
@@ -441,11 +480,18 @@ async function reloadFromCodeMirror() {
 
 function guardSave(event) {
   if (!crepe) return;
-  const problems = invalidRawBlocks(view().state.doc);
-  if (problems.length) {
+  const doc = view().state.doc;
+  const raw = invalidRawBlocks(doc);
+  const blocks = invalidOtterBlocks(doc);
+  if (raw.length || blocks.length) {
     event.preventDefault();
     event.stopImmediatePropagation();
-    notify(`Fix the Otter Wiki block marked in red before saving. ${problems[0]}`, 'Not saved');
+    notify(
+      raw.length
+        ? `Fix the Otter Wiki block marked in red before saving. ${raw[0]}`
+        : `Fix this before saving. ${blocks[0]}`,
+      'Not saved',
+    );
     return;
   }
   flush();

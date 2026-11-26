@@ -83,8 +83,9 @@ function scanPrefixed(lines, i, first, rest) {
   return j;
 }
 
-// Splits a page into {kind, text} segments, where kind is 'markdown' or one of the raw kinds.
-export function segment(md) {
+// Splits a page into {kind, text} segments, where kind is 'markdown' or one of the raw kinds. Inside
+// another block a page can't have frontmatter, so `nested` leaves it out.
+export function segment(md, { nested = false } = {}) {
   const lines = md.split('\n');
   const segments = [];
   let buffer = [];
@@ -107,6 +108,7 @@ export function segment(md) {
     }
     let matched = false;
     for (const { kind, scan } of scanners) {
+      if (nested && kind === 'frontmatter') continue;
       const end = scan(lines, i);
       if (end !== null && end > i) {
         flush();
@@ -127,15 +129,179 @@ function fenceFor(text) {
   return '`'.repeat(Math.max(3, longest + 1));
 }
 
-export function protect(md) {
-  return segment(md)
-    .map(({ kind, text }) => {
-      if (kind === 'markdown') return text;
-      const fence = fenceFor(text);
-      // Blank lines either side, so the wrapper never runs into a neighbouring paragraph.
-      return `\n${fence}${RAW_LANG}\n${text}\n${fence}\n`;
-    })
+// Info boxes, alerts, folds and spoilers are edited as text. Each is split into its attributes and
+// its Markdown content exactly as Otter Wiki's renderer splits it, so the content means the same to
+// Milkdown as it does to Otter Wiki.
+
+export const ALERT_TYPES = ALERTS.split('|');
+export const FANCY_FAMILIES = ['info', 'warning', 'danger', 'success'];
+
+const HEADER = /^#{1,5}\s*(.*)\n+/;
+const FANCY_OPEN = /^ {0,3}(:{3,}|~{3,})([^:\n]*)$/;
+const FOLD_LEADING = /^ *>\|/gm;
+const SPOILER_LEADING = /^ *>!/gm;
+const ALERT_LEADING = new RegExp(`^ *>(\\s*\\[!(${ALERTS})\\])?`, 'gim');
+
+function takeHeader(text) {
+  const match = HEADER.exec(text);
+  if (!match) return { title: null, content: text };
+  return { title: match[1], content: text.replace(HEADER, '') };
+}
+
+// Returns {kind, attrs, content} for a block of one of these kinds, or null if it should stay raw.
+export function parseContainer(kind, text) {
+  const lines = text.split('\n');
+  if (kind === 'fancy') {
+    const open = FANCY_OPEN.exec(lines[0]);
+    if (!open || lines.length < 2) return null;
+    // Otter Wiki only closes the block on a line that starts with the opening marker.
+    const close = new RegExp(`^ {0,3}${open[1]}[~:]* *$`);
+    if (!close.test(lines.at(-1))) return null;
+    const { title, content } = takeHeader(lines.slice(1, -1).join('\n'));
+    return { kind, attrs: { family: open[2].trim().toLowerCase(), title }, content };
+  }
+  if (kind === 'fold') {
+    const { title, content } = takeHeader(text.replace(FOLD_LEADING, '').trim());
+    return { kind, attrs: { title }, content };
+  }
+  if (kind === 'spoiler') {
+    return { kind, attrs: {}, content: text.replace(SPOILER_LEADING, '') };
+  }
+  if (kind === 'alert') {
+    // A lone [!NOTE] line is a plain quote to Otter Wiki.
+    if (lines.length < 2) return null;
+    const type = new RegExp(`^ {0,3}>\\s*\\[!(${ALERTS})\\]`, 'i').exec(text)[1].toUpperCase();
+    return { kind, attrs: { type }, content: text.replace(ALERT_LEADING, '') };
+  }
+  return null;
+}
+
+const prefixLines = (lines, prefix) =>
+  lines.map((line) => (line ? `${prefix} ${line}` : prefix)).join('\n');
+
+// The Markdown for a block, given its attributes and its content already written as Markdown.
+export function formatContainer(kind, { family, title, type }, content) {
+  const heading = title?.trim() ? `# ${title.trim()}` : null;
+  const lines = content ? content.split('\n') : [];
+  if (kind === 'fancy') {
+    // Otter Wiki only reads the heading if a newline follows it.
+    if (heading && !lines.length) lines.push('');
+    return [`:::${family ? ` ${family}` : ''}`, ...(heading ? [heading] : []), ...lines, ':::'].join('\n');
+  }
+  if (kind === 'fold') return prefixLines(heading ? [heading, ...lines] : lines.length ? lines : [''], '>|');
+  if (kind === 'spoiler') return prefixLines(lines.length ? lines : [''], '>!');
+  if (kind === 'alert') return `> [!${type}]\n${prefixLines(lines.length ? lines : [''], '>')}`;
+  throw new Error(`Unknown Otter Wiki block ${kind}`);
+}
+
+export const CONTAINER_KINDS = new Set(['fancy', 'alert', 'fold', 'spoiler']);
+
+// Milkdown parses the page with remark, so each block reaches it as its content between two HTML
+// comments. liftContainers turns those back into one otterContainer node.
+const OPEN_MARKER = /^<!--holt-block (\S+)-->$/;
+const CLOSE_MARKER = '<!--/holt-block-->';
+
+// Content that could run past the closing marker stays raw. That's an unclosed fence, or an HTML
+// block that only ends at its closing tag.
+function containable(content) {
+  if (/^ {0,3}<(script|pre|style|textarea|!|\?)/im.test(content)) return false;
+  const lines = content.split('\n');
+  let fence = null;
+  for (const line of lines) {
+    const match = isFence(line);
+    if (!fence && match) fence = match[1];
+    else if (fence && new RegExp(`^ {0,3}${fence[0]}{${fence.length},}\\s*$`).test(line)) fence = null;
+  }
+  return fence === null;
+}
+
+// Otter Wiki leaves the space after a line's >| (or >! or >) in the content. The editor writes it
+// back with the prefix, so a raw block inside drops it here, or it would gain a space every save.
+// It's dropped from every line or none, so the lines keep their indents relative to each other.
+const dropPrefixSpace = (text) =>
+  text.split('\n').every((line) => line === '' || line.startsWith(' '))
+    ? text.replace(/^ /gm, '')
+    : text;
+
+function protectSegment(kind, text, { prefixed = false } = {}) {
+  const block = CONTAINER_KINDS.has(kind) ? parseContainer(kind, text) : null;
+  if (block && containable(block.content)) {
+    const data = encodeURIComponent(JSON.stringify({ kind, ...block.attrs, raw: text }));
+    const inner = protect(block.content, { nested: true, prefixed: kind !== 'fancy' });
+    return `\n<!--holt-block ${data}-->\n\n${inner}\n\n${CLOSE_MARKER}\n`;
+  }
+  if (prefixed) text = dropPrefixSpace(text);
+  const fence = fenceFor(text);
+  // Blank lines either side, so the wrapper never runs into a neighbouring paragraph.
+  return `\n${fence}${RAW_LANG}\n${text}\n${fence}\n`;
+}
+
+export function protect(md, { nested = false, prefixed = false } = {}) {
+  return segment(md, { nested })
+    .map(({ kind, text }) => (kind === 'markdown' ? text : protectSegment(kind, text, { prefixed })))
     .join('\n');
+}
+
+// Milkdown wraps HTML at the top level in a paragraph, so a marker can arrive either way.
+function markerText(node) {
+  if (node.type === 'html') return node.value.trim();
+  if (node.type === 'paragraph' && node.children?.length === 1 && node.children[0].type === 'html') {
+    return node.children[0].value.trim();
+  }
+  return null;
+}
+
+const hasDescendant = (node, test) =>
+  (node.children ?? []).some((child) => test(child) || hasDescendant(child, test));
+
+// What each kind of node can hold. Anything else stays a raw block.
+function representable(kind, children) {
+  if (kind === 'spoiler') return children.length === 0 || (children.length === 1 && children[0].type === 'paragraph');
+  if (kind === 'fancy') {
+    // Otter Wiki renders headings in an info box as plain text, and can't nest info boxes.
+    return !hasDescendant(
+      { children },
+      (node) => node.type === 'heading' || (node.type === 'otterContainer' && node.kind === 'fancy'),
+    );
+  }
+  return true;
+}
+
+// The remark transform that pairs up the markers. A block whose content Milkdown can't represent
+// goes back to being a raw block.
+export function liftContainers(tree) {
+  if (!tree.children) return;
+  const out = [];
+  const stack = [];
+  for (const child of tree.children) {
+    const marker = markerText(child);
+    const open = marker && OPEN_MARKER.exec(marker);
+    if (open) {
+      stack.push({ data: JSON.parse(decodeURIComponent(open[1])), children: [] });
+      continue;
+    }
+    if (marker === CLOSE_MARKER && stack.length) {
+      const { data, children } = stack.pop();
+      const { kind, raw, ...attrs } = data;
+      const node = representable(kind, children)
+        ? { type: 'otterContainer', kind, attrs, children }
+        : { type: 'code', lang: RAW_LANG, value: raw };
+      (stack.at(-1)?.children ?? out).push(node);
+      continue;
+    }
+    liftContainers(child);
+    (stack.at(-1)?.children ?? out).push(child);
+  }
+  // A marker left open means the page didn't parse as expected. Its content is kept, and the round
+  // trip check then keeps the page in the Markdown editor.
+  tree.children = out.concat(stack.flatMap(({ children }) => children));
+}
+
+// remark-stringify's handler for otterContainer. Raw blocks inside are unwrapped here, because the
+// line prefixes would stop unprotect finding them later.
+export function otterContainerToMarkdown(node, _parent, state, info) {
+  const content = unprotect(state.containerFlow(node, info));
+  return formatContainer(node.kind, node.attrs, content);
 }
 
 const RAW_BLOCK = new RegExp(

@@ -12,6 +12,8 @@ import {
   MARK_PATTERN,
   formatWikilink,
   inlineKind,
+  liftContainers,
+  otterContainerToMarkdown,
   parseWikilink,
 } from './dialect.js';
 import { askWikilink } from './dialogs.js';
@@ -49,6 +51,7 @@ export const otterRemark = $remark('otterRemark', () => function () {
   (data.toMarkdownExtensions ??= []).push({
     handlers: {
       otterMark: (node, _, state, info) => `==${state.containerPhrasing(node, info)}==`,
+      otterContainer: otterContainerToMarkdown,
     },
     // Characters that would start Otter syntax if written out unescaped. Text typed in the rich
     // editor can then never become a fancy block, a highlight, maths or a wiki link by accident.
@@ -63,6 +66,7 @@ export const otterRemark = $remark('otterRemark', () => function () {
     ],
   });
   return (tree) => {
+    liftContainers(tree);
     splitText(tree, INLINE_PATTERN, (m) => ({ type: 'otterInline', value: m[0] }));
     splitText(tree, MARK_PATTERN, (m) => ({
       type: 'otterMark',

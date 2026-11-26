@@ -308,6 +308,168 @@
   display: block;
 }
 
+/* Crepe draws the cursor as one element at the start of the document. Without this, any block
+ * positioned after it, such as the ones below, paints over it. */
+#holt-rich-editor .ProseMirror .prosemirror-virtual-cursor {
+  z-index: 1;
+}
+
+/* Info boxes, alerts, folds and spoilers, edited as text. They take Otter Wiki's classes, so they
+ * look as they do on the page. */
+.otter-block {
+  position: relative;
+}
+
+.otter-block-content > :last-child {
+  margin-bottom: 0;
+}
+
+.otter-block-title {
+  position: relative;
+  min-height: 1.6em;
+}
+
+/* An empty title shows what it's for. An info box only shows it while it's being edited, since
+ * most have no heading. */
+.otter-block-untitled .otter-block-title::before {
+  position: absolute;
+  color: var(--holt-text-3);
+  pointer-events: none;
+}
+
+.otter-fancy.otter-block-untitled .otter-block-title::before {
+  content: 'Heading';
+}
+
+.otter-fold.otter-block-untitled .otter-block-title::before {
+  content: 'Summary';
+}
+
+.otter-fancy.otter-block-untitled:not(.otter-block-active) .otter-block-title {
+  display: none;
+}
+
+.otter-fancy .otter-block-title {
+  font-size: 1.6rem;
+  font-weight: 600;
+  margin-bottom: 0.8rem;
+}
+
+/* The type reads as a quiet label until it's hovered, like a code block's language. */
+#holt-rich-editor .otter-block-type {
+  appearance: none;
+  height: auto;
+  padding: 0.1rem 0.6rem;
+  border: 1px solid transparent;
+  border-radius: 0.4rem;
+  background: transparent;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+#holt-rich-editor .otter-block-type:is(:hover, :focus) {
+  border-color: var(--holt-divider);
+  background: var(--holt-bg);
+}
+
+.otter-fancy > .otter-block-controls {
+  position: absolute;
+  top: 0.6rem;
+  right: 0.6rem;
+  font-size: 1.2rem;
+  color: var(--holt-text-3);
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+.otter-fancy:is(:hover, .otter-block-active) > .otter-block-controls {
+  opacity: 1;
+}
+
+@media (hover: none) {
+  .otter-fancy > .otter-block-controls {
+    opacity: 1;
+  }
+}
+
+.otter-alert > .otter-block-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.2rem;
+  margin-bottom: 0.4rem;
+}
+
+#holt-rich-editor .otter-alert .otter-block-type {
+  margin-left: -0.4rem;
+  font-weight: 600;
+}
+
+/* Folds look like Notion toggles, open while they're edited. */
+.otter-fold {
+  padding-left: 2.6rem;
+}
+
+.otter-fold > .otter-block-controls {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+#holt-rich-editor .otter-fold-toggle {
+  width: 2.2rem;
+  height: 2.6rem;
+  border-radius: var(--holt-radius);
+  color: var(--holt-text-2);
+  cursor: pointer;
+}
+
+#holt-rich-editor .otter-fold-toggle:hover {
+  background: var(--holt-hover);
+}
+
+.otter-fold-toggle::before {
+  content: '';
+  display: inline-block;
+  border: 0.45rem solid transparent;
+  border-top-color: currentColor;
+  border-bottom-width: 0;
+  transition: transform 0.15s ease;
+}
+
+.otter-fold-closed .otter-fold-toggle::before {
+  transform: rotate(-90deg);
+}
+
+.otter-fold .otter-block-title {
+  line-height: 2.6rem;
+  font-weight: 500;
+}
+
+.otter-fold-closed .otter-block-content > :not(.otter-block-title) {
+  display: none;
+}
+
+/* Otter Wiki hides a spoiler's text until it's clicked, which can't work while it's edited. */
+.otter-spoiler {
+  display: flex;
+  gap: 1rem;
+  align-items: baseline;
+}
+
+.page .otter-spoiler > * {
+  opacity: 1;
+}
+
+.otter-spoiler > .otter-block-controls {
+  color: var(--holt-text-3);
+}
+
+.otter-spoiler > .otter-block-content {
+  flex: 1;
+  min-width: 0;
+}
+
 /* Dialogs and popovers */
 .otter-dialog {
   border: 0;
